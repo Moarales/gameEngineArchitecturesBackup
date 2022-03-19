@@ -8,7 +8,7 @@
             CenX = cenX;
             CenY = cenY;
             ExtX = extX;
-            ExtY = ExtY;
+            ExtY = extY;
         }
 
         public int Id { get; }

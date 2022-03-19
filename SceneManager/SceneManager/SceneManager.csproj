@@ -44,10 +44,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BoundingBox.cs" />
-    <Compile Include="BoundingBoxGenerator.cs" />
+    <Compile Include="BoundingBoxManager.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="SceneManager.cs" />
-    <Compile Include="QuadTree.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

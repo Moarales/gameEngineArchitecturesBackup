@@ -4,9 +4,11 @@ namespace SceneManager
 {
     public class Node
     {
-        public Node(BoundingBox bb)
+        public Node(int centerX, int centerY, int centerExt)
         {
-            BoundingBoxes.Add(bb);
+            CenterX = centerX;
+            CenterY = centerY;
+            CenterExt = centerExt;
         }
 
         public List<BoundingBox> BoundingBoxes = new List<BoundingBox>();
@@ -14,5 +16,8 @@ namespace SceneManager
         public Node UpperRight;
         public Node DownLeft;
         public Node DownRight;
+        public int CenterY;
+        public int CenterX;
+        public int CenterExt;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace SceneManager
 {
@@ -6,15 +7,12 @@ namespace SceneManager
     {
         static void Main(string[] args)
         {
-            var sceneManager = new SceneManager();
-            var boundingBoxGenerator = new BoundingBoxGenerator();
+            var sceneManager = new SceneManager(100);
+            Debug.Assert(sceneManager.insertBoundingBox(30, 30, 10, 10) == 0);
+            Debug.Assert(sceneManager.insertBoundingBox(2, 1, 1, 1) == 1);
 
-            var bb1 = boundingBoxGenerator.GetBoundingBox(1, 1, 1, 1);
-            var bb2 = boundingBoxGenerator.GetBoundingBox(2, 1, 1, 1);
 
-            Console.WriteLine(bb1.Id);
-            Console.WriteLine(bb2.Id);
-
+            Console.WriteLine("Press any key for exit");
             Console.ReadKey();
         }
     }
