@@ -14,7 +14,7 @@ namespace SceneManager
         }
 
         private readonly int _size;
-        private Node _root;
+        public Node _root { get; private set; }
 
         // Insert a axis aligned bounding box
         // cenX – extX <= x <= cenX + extX, cenY – extY <= y <= cenY + extY
