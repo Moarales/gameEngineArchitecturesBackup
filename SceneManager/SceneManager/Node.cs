@@ -1,15 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace SceneManager
 {
     public class Node
     {
-        public Node(int centerX, int centerY, int centerExt)
+        public Node(int centerX, int centerY, int size, int level)
         {
             CenterX = centerX;
             CenterY = centerY;
-            CenterExt = centerExt;
+            CenterExt = size / (int) Math.Pow(2, level);
+            Level = level;
+            DiagonalSquared = 2 * (int) Math.Pow(CenterExt, 2);
         }
+
 
         public List<BoundingBox> BoundingBoxes = new List<BoundingBox>();
         public Node UpperLeft;
@@ -18,6 +22,8 @@ namespace SceneManager
         public Node DownRight;
         public int CenterY;
         public int CenterX;
-        public int CenterExt;
+        public readonly int CenterExt;
+        public readonly int Level;
+        public readonly int DiagonalSquared;
     }
 }

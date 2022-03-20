@@ -8,7 +8,7 @@ namespace SceneManager
         static void Main(string[] args)
         {
             var sceneManager = new SceneManager(100);
-            Debug.Assert(sceneManager.insertBoundingBox(30, 30, 10, 10) == 0);
+            Debug.Assert(sceneManager.insertBoundingBox(30, 30, 24, 24) == 0);
             Debug.Assert(sceneManager.insertBoundingBox(2, 1, 1, 1) == 1);
 
 

@@ -28,25 +28,23 @@ namespace SceneManager
 
             if (_root == null)
             {
-                _root = new Node(_size / 2, _size / 2, _size);
+                _root = new Node(_size / 2, _size / 2, _size, 0);
             }
 
 
             var currentNode = _root;
+
             Node prevNode = null;
-            var diagonal = (int) (Math.Pow(extX, 2) + Math.Pow(extY, 2));
+            var diagonalSquared = (int) (Math.Pow(extX, 2) + Math.Pow(extY, 2));
 
-            var bbPlaced = false;
 
-            while (!bbPlaced)
+            //check if root is already the place for new bb
+            var bb_found = currentNode.DiagonalSquared <= diagonalSquared;
+
+            while (!bb_found)
             {
-                //smallest node found that can fit bb
-
                 Debug.Assert(currentNode != null, "current node shouldn't be null");
-                if (2 * Math.Pow(currentNode.CenterExt, 2) <= diagonal)
-                {
-                    bbPlaced = true;
-                }
+
 
                 prevNode = currentNode;
 
@@ -58,10 +56,9 @@ namespace SceneManager
                     {
                         prevNode.UpperLeft = new Node(prevNode.CenterX - prevNode.CenterExt / 4,
                             prevNode.CenterY - prevNode.CenterExt / 4,
-                            prevNode.CenterExt / 2);
+                            _size, prevNode.Level + 1);
+                        currentNode = prevNode.UpperLeft;
                     }
-
-                    currentNode = prevNode.UpperLeft;
                 }
                 else if (currentNode.CenterX < cenX && currentNode.CenterY > cenY)
                 {
@@ -70,10 +67,9 @@ namespace SceneManager
                     {
                         prevNode.UpperRight = new Node(prevNode.CenterX + prevNode.CenterExt / 4,
                             prevNode.CenterY - prevNode.CenterExt / 4,
-                            prevNode.CenterExt / 2);
+                            _size, prevNode.Level + 1);
+                        currentNode = prevNode.UpperRight;
                     }
-
-                    currentNode = prevNode.UpperRight;
                 }
                 else if (currentNode.CenterX > cenX && currentNode.CenterY < cenY)
                 {
@@ -83,10 +79,9 @@ namespace SceneManager
                     {
                         prevNode.DownLeft = new Node(prevNode.CenterX - prevNode.CenterExt / 4,
                             prevNode.CenterY + prevNode.CenterExt / 4,
-                            prevNode.CenterExt / 2);
+                            _size, prevNode.Level + 1);
+                        currentNode = prevNode.DownLeft;
                     }
-
-                    currentNode = prevNode.DownLeft;
                 }
                 else if (currentNode.CenterX < cenX && currentNode.CenterY < cenY)
                 {
@@ -95,22 +90,31 @@ namespace SceneManager
                     {
                         prevNode.DownRight = new Node(prevNode.CenterX + prevNode.CenterExt / 4,
                             prevNode.CenterY + prevNode.CenterExt / 4,
-                            prevNode.CenterExt / 2);
+                            _size, prevNode.Level + 1);
+                        currentNode = prevNode.DownRight;
                     }
-
-                    currentNode = prevNode.DownRight;
                 }
                 else
                 {
                     throw new ArgumentException("Quartile not found which is weird and should never happen");
                 }
+
+
+                bb_found = CheckIfNodeFound(currentNode, diagonalSquared);
             }
 
 
             currentNode.BoundingBoxes.Add(boundingBox);
 
+            Debug.Assert(currentNode.DiagonalSquared >= diagonalSquared, "Bounding Box to Big for Node :(");
+
 
             return boundingBox.Id;
+        }
+
+        private bool CheckIfNodeFound(Node currentNode, int diagonalSquared)
+        {
+            return currentNode.DiagonalSquared / 4 < diagonalSquared;
         }
 
         // Remove a bounding box which was inserted before.
