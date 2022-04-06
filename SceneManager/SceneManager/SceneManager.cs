@@ -26,6 +26,8 @@ namespace SceneManager
             var boundingBox = BoundingBoxManager.Instance.GetBoundingBox(cenX, cenY, extX, extY);
             Console.WriteLine("Created bb with id: " + boundingBox.Id);
 
+
+            //TODO: Root is always created? I think i could get rid of that if there is only one node we don't need a root node
             if (_root == null)
             {
                 _root = new Node(_size / 2, _size / 2, _size, 0);
@@ -57,8 +59,7 @@ namespace SceneManager
                     {
 
                         Debug.Assert(currentNode != null, "Current node should never be null in here");
-                        prevNodeIsEmpty = true;
-                        //if prev node is empty we can just reuse the prev node and update center/ ext 
+                        //if prev node is empty we can just reuse the current node and update center/ ext 
                         currentNode.UpdateNode(currentNode.CenterX - currentNode.CenterExt / 4,
                             currentNode.CenterY - currentNode.CenterExt / 4,
                             _size, currentNode.Level + 1);
@@ -66,7 +67,6 @@ namespace SceneManager
                     else
                     {
                         currentNode = currentNode.UpperLeft;
-
                         if (currentNode == null)
                         {
                             prevNodeIsEmpty = true;
@@ -77,6 +77,21 @@ namespace SceneManager
                             currentNode = prevNode.UpperLeft;
 
                         }
+                        else if (currentNode.Level != prevNode.Level + 1 && currentNode.DiagonalSquared < diagonalSquared)
+                        {
+                            //if this is true we hit a skipped node and have to insert our node inbetween
+                            var lost_node = prevNode.UpperLeft;
+
+                            var new_node = new Node(prevNode.CenterX - prevNode.CenterExt / 4,
+                                prevNode.CenterY - prevNode.CenterExt / 4,
+                                _size, prevNode.Level + 1);
+
+                            placeNodeAsChild(new_node, lost_node);
+
+                            currentNode = new_node;
+                        }
+
+
                     }
 
                 }
@@ -88,7 +103,7 @@ namespace SceneManager
 
                         Debug.Assert(currentNode != null, "Current node should never be null in here");
                         prevNodeIsEmpty = true;
-                        //if prev node is empty we can just reuse the prev node and update center/ ext 
+                        //if prev node is empty we can just reuse the current node and update center/ ext 
                         currentNode.UpdateNode(currentNode.CenterX + currentNode.CenterExt / 4,
                             currentNode.CenterY - currentNode.CenterExt / 4,
                             _size, currentNode.Level + 1);
@@ -106,6 +121,19 @@ namespace SceneManager
                                 _size, prevNode.Level + 1);
                             currentNode = prevNode.UpperRight;
                         }
+                        else if (currentNode.Level != prevNode.Level + 1 && currentNode.DiagonalSquared < diagonalSquared)
+                        {
+                            //if this is true we hit a skipped node and have to insert our node inbetween
+                            var lost_node = prevNode.UpperRight;
+
+                            var new_node = new Node(prevNode.CenterX + prevNode.CenterExt / 4,
+                                prevNode.CenterY - prevNode.CenterExt / 4,
+                                _size, prevNode.Level + 1);
+
+                            placeNodeAsChild(new_node, lost_node);
+
+                            currentNode = new_node;
+                        }
                     }
                 }
                 else if (currentNode.CenterX > cenX && currentNode.CenterY < cenY)
@@ -113,7 +141,7 @@ namespace SceneManager
                     if (prevNodeIsEmpty)
                     {
                         Debug.Assert(currentNode != null, "Current node should never be null in here");
-                        //if prev node is empty we can just reuse the prev node and update center/ ext 
+                        //if prev node is empty we can just reuse the current node and update center/ ext 
                         currentNode.UpdateNode(currentNode.CenterX - currentNode.CenterExt / 4,
                             currentNode.CenterY + currentNode.CenterExt / 4,
                             _size, currentNode.Level + 1);
@@ -131,6 +159,19 @@ namespace SceneManager
                                 _size, prevNode.Level + 1);
                             currentNode = prevNode.DownLeft;
                         }
+                        else if (currentNode.Level != prevNode.Level + 1 && currentNode.DiagonalSquared < diagonalSquared)
+                        {
+                            //if this is true we hit a skipped node and have to insert our node inbetween
+                            var lost_node = prevNode.UpperRight;
+
+                            var new_node = new Node(prevNode.CenterX - prevNode.CenterExt / 4,
+                                prevNode.CenterY + prevNode.CenterExt / 4,
+                                _size, prevNode.Level + 1);
+
+                            placeNodeAsChild(new_node, lost_node);
+
+                            currentNode = new_node;
+                        }
                     }
                 }
                 else if (currentNode.CenterX < cenX && currentNode.CenterY < cenY)
@@ -138,7 +179,7 @@ namespace SceneManager
                     if (prevNodeIsEmpty)
                     {
                         Debug.Assert(currentNode != null, "Current node should never be null in here");
-                        //if prev node is empty we can just reuse the prev node and update center/ ext 
+                        //if prev node is empty we can just reuse the current node and update center/ ext 
                         currentNode.UpdateNode(currentNode.CenterX + currentNode.CenterExt / 4,
                             currentNode.CenterY + currentNode.CenterExt / 4,
                             _size, currentNode.Level + 1);
@@ -155,6 +196,19 @@ namespace SceneManager
                                 prevNode.CenterY + prevNode.CenterExt / 4,
                                 _size, prevNode.Level + 1);
                             currentNode = prevNode.DownRight;
+                        }
+                        else if (currentNode.Level != prevNode.Level + 1 && currentNode.DiagonalSquared < diagonalSquared)
+                        {
+                            //if this is true we hit a skipped node and have to insert our node inbetween
+                            var lost_node = prevNode.UpperRight;
+
+                            var new_node = new Node(prevNode.CenterX + prevNode.CenterExt / 4,
+                                prevNode.CenterY + prevNode.CenterExt / 4,
+                                _size, prevNode.Level + 1);
+
+                            placeNodeAsChild(new_node, lost_node);
+
+                            currentNode = new_node;
                         }
 
                     }
@@ -182,6 +236,23 @@ namespace SceneManager
         private bool CheckIfNodeFound(Node currentNode, int diagonalSquared)
         {
             return currentNode.DiagonalSquared / 4 < diagonalSquared;
+        }
+
+        private void placeNodeAsChild(Node parentNode, Node childNode)
+        {
+            if (parentNode.CenterX > childNode.CenterX && parentNode.CenterY > childNode.CenterY)
+            {
+                parentNode.UpperLeft = childNode;
+            }else if (parentNode.CenterX < childNode.CenterX && parentNode.CenterY > childNode.CenterY)
+            {
+                parentNode.UpperRight = childNode;
+            }else if (parentNode.CenterX > childNode.CenterX && parentNode.CenterY < childNode.CenterY)
+            {
+                parentNode.DownLeft = childNode;
+            }else if (parentNode.CenterX < childNode.CenterX && parentNode.CenterY < childNode.CenterY)
+            {
+                parentNode.DownRight = childNode;
+            }
         }
 
         // Remove a bounding box which was inserted before.
