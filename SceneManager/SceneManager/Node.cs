@@ -9,9 +9,9 @@ namespace SceneManager
         {
             CenterX = centerX;
             CenterY = centerY;
-            CenterExt = size / (int) Math.Pow(2, level);
+            CenterExt = size / (int)Math.Pow(2, level);
             Level = level;
-            DiagonalSquared = 2 * (int) Math.Pow(CenterExt, 2);
+            DiagonalSquared = 2 * (int)Math.Pow(CenterExt, 2);
         }
 
 
@@ -22,8 +22,18 @@ namespace SceneManager
         public Node DownRight;
         public int CenterY;
         public int CenterX;
-        public readonly int CenterExt;
-        public readonly int Level;
-        public readonly int DiagonalSquared;
+        public int CenterExt { get; private set; }
+        public int Level { get; private set; }
+        public int DiagonalSquared { get; private set; }
+
+
+        public void UpdateNode(int centerX, int centerY, int size, int level)
+        {
+            CenterX = centerX;
+            CenterY = centerY;
+            CenterExt = size / (int)Math.Pow(2, level);
+            Level = level;
+            DiagonalSquared = 2 * (int)Math.Pow(CenterExt, 2);
+        }
     }
 }

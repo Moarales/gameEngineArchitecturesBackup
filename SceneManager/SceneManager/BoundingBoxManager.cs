@@ -6,7 +6,6 @@ namespace SceneManager
     {
         private static int _id;
 
-
         static BoundingBoxManager()
         {
             _id = 0;

@@ -35,64 +35,131 @@ namespace SceneManager
             var currentNode = _root;
 
             Node prevNode = null;
-            var diagonalSquared = (int) (Math.Pow(extX, 2) + Math.Pow(extY, 2));
+            var diagonalSquared = (int)(Math.Pow(extX, 2) + Math.Pow(extY, 2));
 
 
             //check if root is already the place for new bb
             var bb_found = currentNode.DiagonalSquared <= diagonalSquared;
 
+            bool prevNodeIsEmpty = false;
+
+
+
             while (!bb_found)
             {
                 Debug.Assert(currentNode != null, "current node shouldn't be null");
-
 
                 prevNode = currentNode;
 
                 if (currentNode.CenterX > cenX && currentNode.CenterY > cenY)
                 {
-                    currentNode = currentNode.UpperLeft;
-
-                    if (currentNode == null)
+                    if (prevNodeIsEmpty)
                     {
-                        prevNode.UpperLeft = new Node(prevNode.CenterX - prevNode.CenterExt / 4,
-                            prevNode.CenterY - prevNode.CenterExt / 4,
-                            _size, prevNode.Level + 1);
-                        currentNode = prevNode.UpperLeft;
+
+                        Debug.Assert(currentNode != null, "Current node should never be null in here");
+                        prevNodeIsEmpty = true;
+                        //if prev node is empty we can just reuse the prev node and update center/ ext 
+                        currentNode.UpdateNode(currentNode.CenterX - currentNode.CenterExt / 4,
+                            currentNode.CenterY - currentNode.CenterExt / 4,
+                            _size, currentNode.Level + 1);
                     }
+                    else
+                    {
+                        currentNode = currentNode.UpperLeft;
+
+                        if (currentNode == null)
+                        {
+                            prevNodeIsEmpty = true;
+
+                            prevNode.UpperLeft = new Node(prevNode.CenterX - prevNode.CenterExt / 4,
+                                prevNode.CenterY - prevNode.CenterExt / 4,
+                                _size, prevNode.Level + 1);
+                            currentNode = prevNode.UpperLeft;
+
+                        }
+                    }
+
                 }
                 else if (currentNode.CenterX < cenX && currentNode.CenterY > cenY)
                 {
-                    currentNode = currentNode.UpperRight;
-                    if (currentNode == null)
+
+                    if (prevNodeIsEmpty)
                     {
-                        prevNode.UpperRight = new Node(prevNode.CenterX + prevNode.CenterExt / 4,
-                            prevNode.CenterY - prevNode.CenterExt / 4,
-                            _size, prevNode.Level + 1);
-                        currentNode = prevNode.UpperRight;
+
+                        Debug.Assert(currentNode != null, "Current node should never be null in here");
+                        prevNodeIsEmpty = true;
+                        //if prev node is empty we can just reuse the prev node and update center/ ext 
+                        currentNode.UpdateNode(currentNode.CenterX + currentNode.CenterExt / 4,
+                            currentNode.CenterY - currentNode.CenterExt / 4,
+                            _size, currentNode.Level + 1);
+
+                    }
+                    else
+                    {
+                        currentNode = currentNode.UpperRight;
+                        if (currentNode == null)
+                        {
+                            prevNodeIsEmpty = true;
+
+                            prevNode.UpperRight = new Node(prevNode.CenterX + prevNode.CenterExt / 4,
+                                prevNode.CenterY - prevNode.CenterExt / 4,
+                                _size, prevNode.Level + 1);
+                            currentNode = prevNode.UpperRight;
+                        }
                     }
                 }
                 else if (currentNode.CenterX > cenX && currentNode.CenterY < cenY)
                 {
-                    currentNode = currentNode.DownLeft;
-
-                    if (currentNode == null)
+                    if (prevNodeIsEmpty)
                     {
-                        prevNode.DownLeft = new Node(prevNode.CenterX - prevNode.CenterExt / 4,
-                            prevNode.CenterY + prevNode.CenterExt / 4,
-                            _size, prevNode.Level + 1);
-                        currentNode = prevNode.DownLeft;
+                        Debug.Assert(currentNode != null, "Current node should never be null in here");
+                        //if prev node is empty we can just reuse the prev node and update center/ ext 
+                        currentNode.UpdateNode(currentNode.CenterX - currentNode.CenterExt / 4,
+                            currentNode.CenterY + currentNode.CenterExt / 4,
+                            _size, currentNode.Level + 1);
+                    }
+                    else
+                    {
+                        currentNode = currentNode.DownLeft;
+
+                        if (currentNode == null)
+                        {
+                            prevNodeIsEmpty = true;
+
+                            prevNode.DownLeft = new Node(prevNode.CenterX - prevNode.CenterExt / 4,
+                                prevNode.CenterY + prevNode.CenterExt / 4,
+                                _size, prevNode.Level + 1);
+                            currentNode = prevNode.DownLeft;
+                        }
                     }
                 }
                 else if (currentNode.CenterX < cenX && currentNode.CenterY < cenY)
                 {
-                    currentNode = currentNode.DownRight;
-                    if (currentNode == null)
+                    if (prevNodeIsEmpty)
                     {
-                        prevNode.DownRight = new Node(prevNode.CenterX + prevNode.CenterExt / 4,
-                            prevNode.CenterY + prevNode.CenterExt / 4,
-                            _size, prevNode.Level + 1);
-                        currentNode = prevNode.DownRight;
+                        Debug.Assert(currentNode != null, "Current node should never be null in here");
+                        //if prev node is empty we can just reuse the prev node and update center/ ext 
+                        currentNode.UpdateNode(currentNode.CenterX + currentNode.CenterExt / 4,
+                            currentNode.CenterY + currentNode.CenterExt / 4,
+                            _size, currentNode.Level + 1);
                     }
+                    else
+                    {
+                        currentNode = currentNode.DownRight;
+
+                        if (currentNode == null)
+                        {
+                            prevNodeIsEmpty = true;
+
+                            prevNode.DownRight = new Node(prevNode.CenterX + prevNode.CenterExt / 4,
+                                prevNode.CenterY + prevNode.CenterExt / 4,
+                                _size, prevNode.Level + 1);
+                            currentNode = prevNode.DownRight;
+                        }
+
+                    }
+
+
                 }
                 else
                 {
