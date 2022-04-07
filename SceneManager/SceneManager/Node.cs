@@ -35,5 +35,32 @@ namespace SceneManager
             Level = level;
             DiagonalSquared = 2 * (int)Math.Pow(CenterExt, 2);
         }
+
+
+        public void PlaceNodeAsChild( Node childNode)
+        {
+            if (this.CenterX > childNode.CenterX && this.CenterY > childNode.CenterY)
+            {
+                this.UpperLeft = childNode;
+            }
+            else if (this.CenterX < childNode.CenterX && this.CenterY > childNode.CenterY)
+            {
+                this.UpperRight = childNode;
+            }
+            else if (this.CenterX > childNode.CenterX && this.CenterY < childNode.CenterY)
+            {
+                this.DownLeft = childNode;
+            }
+            else if (this.CenterX < childNode.CenterX && this.CenterY < childNode.CenterY)
+            {
+                this.DownRight = childNode;
+            }
+        }
+
+        public bool IsPointInside(int x, int y)
+        {
+            return (x >= CenterX - CenterExt && x <= CenterX + CenterExt) &&
+                   (y >= CenterY - CenterExt && y <= CenterY + CenterExt);
+        }
     }
 }
