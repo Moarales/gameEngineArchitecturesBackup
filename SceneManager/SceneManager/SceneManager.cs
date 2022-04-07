@@ -23,6 +23,7 @@ namespace SceneManager
         public int insertBoundingBox(
             int cenX, int cenY, int extX, int extY)
         {
+
             var boundingBox = BoundingBoxManager.Instance.GetBoundingBox(cenX, cenY, extX, extY);
             Console.WriteLine("Created bb with id: " + boundingBox.Id);
 
@@ -89,6 +90,8 @@ namespace SceneManager
                             placeNodeAsChild(new_node, lost_node);
 
                             currentNode = new_node;
+
+                            prevNode.UpperLeft = currentNode;
                         }
 
 
@@ -133,6 +136,9 @@ namespace SceneManager
                             placeNodeAsChild(new_node, lost_node);
 
                             currentNode = new_node;
+
+                            prevNode.UpperRight = currentNode;
+
                         }
                     }
                 }
@@ -171,6 +177,9 @@ namespace SceneManager
                             placeNodeAsChild(new_node, lost_node);
 
                             currentNode = new_node;
+
+                            prevNode.DownLeft = currentNode;
+
                         }
                     }
                 }
@@ -209,6 +218,9 @@ namespace SceneManager
                             placeNodeAsChild(new_node, lost_node);
 
                             currentNode = new_node;
+
+                            prevNode.DownRight = currentNode;
+
                         }
 
                     }
