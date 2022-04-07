@@ -78,21 +78,6 @@ namespace SceneManager
                             currentNode = prevNode.UpperLeft;
 
                         }
-/*                        else if (currentNode.Level != prevNode.Level + 1 && currentNode.DiagonalSquared < diagonalSquared)
-                        {
-                            //if this is true we hit a skipped node and have to insert our node inbetween
-                            var lost_node = prevNode.UpperLeft;
-
-                            var new_node = new Node(prevNode.CenterX - prevNode.CenterExt / 4,
-                                prevNode.CenterY - prevNode.CenterExt / 4,
-                                _size, prevNode.Level + 1);
-
-                            new_node.PlaceNodeAsChild(lost_node);
-
-                            currentNode = new_node;
-
-                            prevNode.UpperLeft = currentNode;
-                        }*/
                         else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
                         {
                             //create empty parent to distinguish both nodes
@@ -147,24 +132,6 @@ namespace SceneManager
                                 _size, prevNode.Level + 1);
                             currentNode = prevNode.UpperRight;
                         }
-/*                        else if (currentNode.Level != prevNode.Level + 1 && currentNode.DiagonalSquared < diagonalSquared)
-                        {
-                            //if this is true we hit a skipped node and have to insert our node inbetween
-                            var lost_node = prevNode.UpperRight;
-
-                            var new_node = new Node(prevNode.CenterX + prevNode.CenterExt / 4,
-                                prevNode.CenterY - prevNode.CenterExt / 4,
-                                _size, prevNode.Level + 1);
-
-                            new_node.PlaceNodeAsChild(lost_node);
-
-                            currentNode = new_node;
-
-                            prevNode.UpperRight = currentNode;
-
-                            //TODO: maybe just add prevNode is empty to true and might fix a problem whre multiple levels were skipped
-
-                        }*/
                         else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
                         {
                             //create empty parent to distinguish both nodes
@@ -212,22 +179,6 @@ namespace SceneManager
                                 _size, prevNode.Level + 1);
                             currentNode = prevNode.DownLeft;
                         }
-/*                        else if (currentNode.Level != prevNode.Level + 1 && currentNode.DiagonalSquared < diagonalSquared)
-                        {
-                            //if this is true we hit a skipped node and have to insert our node inbetween
-                            var lost_node = prevNode.UpperRight;
-
-                            var new_node = new Node(prevNode.CenterX - prevNode.CenterExt / 4,
-                                prevNode.CenterY + prevNode.CenterExt / 4,
-                                _size, prevNode.Level + 1);
-
-                            new_node.PlaceNodeAsChild(lost_node);
-
-                            currentNode = new_node;
-
-                            prevNode.DownLeft = currentNode;
-
-                        }*/
                         else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
                         {
                             //create empty parent to distinguish both nodes
@@ -275,22 +226,6 @@ namespace SceneManager
                                 _size, prevNode.Level + 1);
                             currentNode = prevNode.DownRight;
                         }
-/*                        else if (currentNode.Level != prevNode.Level + 1 && currentNode.DiagonalSquared < diagonalSquared)
-                        {
-                            //if this is true we hit a skipped node and have to insert our node inbetween
-                            var lost_node = prevNode.UpperRight;
-
-                            var new_node = new Node(prevNode.CenterX + prevNode.CenterExt / 4,
-                                prevNode.CenterY + prevNode.CenterExt / 4,
-                                _size, prevNode.Level + 1);
-
-                            new_node.PlaceNodeAsChild(lost_node);
-
-                            currentNode = new_node;
-
-                            prevNode.DownRight = currentNode;
-
-                        }*/
                         else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
                         {
                             //create empty parent to distinguish both nodes

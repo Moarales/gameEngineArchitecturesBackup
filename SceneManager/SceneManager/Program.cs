@@ -44,10 +44,12 @@ namespace SceneManager
 
 
 
-
-
-
-
+            Debug.Assert(sceneManager.insertBoundingBox(99, 99, 1, 1) == 8);
+            Debug.Assert(sceneManager._root.DownRight != null);
+            Debug.Assert(sceneManager.insertBoundingBox(56, 56, 20, 20) == 9);
+            Debug.Assert(sceneManager._root.DownRight.BoundingBoxes.Count == 0);
+            Debug.Assert(sceneManager._root.DownRight.UpperLeft.BoundingBoxes.Count == 1);
+            Debug.Assert(sceneManager._root.DownRight.DownRight.BoundingBoxes.Count == 1);
 
 
             Console.WriteLine("Press any key for exit");
