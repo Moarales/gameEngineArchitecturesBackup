@@ -24,8 +24,8 @@ namespace SceneManager
             int cenX, int cenY, int extX, int extY)
         {
 
-            var boundingBox = BoundingBoxManager.Instance.GetBoundingBox(cenX, cenY, extX, extY);
-            Console.WriteLine("Created bb with id: " + boundingBox.Id);
+
+
 
 
             //TODO: Root is always created? what  if there is only one node we don't need a root node
@@ -35,10 +35,30 @@ namespace SceneManager
             }
 
 
+
+
             var currentNode = _root;
 
-            Node prevNode = null;
             var diagonalSquared = (int)(Math.Pow(extX, 2) + Math.Pow(extY, 2));
+
+            if (diagonalSquared > _root.DiagonalSquared)
+            {
+                throw new ArgumentException("BB is to big for our SceneManager, SceneManger set to " + _size +"x"+_size);
+            }
+            if (cenX > _root.CenterExt + _root.CenterExt || cenX < 0 ||
+                      cenY > _root.CenterExt + _root.CenterExt || cenY < 0)
+            {
+                throw new ArgumentException("BB center is not in our scene");
+            }
+
+            if (extX <= 0 || extY <= 0)
+            {
+                throw new ArgumentException("BB x or y ext is zero");
+
+            }
+
+            var boundingBox = BoundingBoxManager.Instance.GetBoundingBox(cenX, cenY, extX, extY);
+            Console.WriteLine("Created bb with id: " + boundingBox.Id);
 
 
             //check if root is already the place for new bb
@@ -52,7 +72,7 @@ namespace SceneManager
             {
                 Debug.Assert(currentNode != null, "current node shouldn't be null");
 
-                prevNode = currentNode;
+                var prevNode = currentNode;
 
                 if (currentNode.CenterX >= cenX && currentNode.CenterY >= cenY)
                 {
@@ -82,8 +102,6 @@ namespace SceneManager
                         else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
                         {
                             //create empty parent to distinguish both nodes
-
-
                             var parentNode = createEmptyParentForTwochildren(currentNode, cenX, cenY, diagonalSquared);
                             //currentNode is the wrong Prophet
                             prevNode.UpperLeft = parentNode;
@@ -91,7 +109,6 @@ namespace SceneManager
                             currentNode = parentNode;
 
                         }
-
 
                     }
 
@@ -108,7 +125,6 @@ namespace SceneManager
                         currentNode.UpdateNode(currentNode.CenterX + currentNode.CenterExt / 4,
                             currentNode.CenterY - currentNode.CenterExt / 4,
                             _size, currentNode.Level + 1);
-
                     }
                     else
                     {
@@ -126,8 +142,6 @@ namespace SceneManager
                         else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
                         {
                             //create empty parent to distinguish both nodes
-
-
                             var parentNode = createEmptyParentForTwochildren(currentNode, cenX, cenY, diagonalSquared);
                             //currentNode is the wrong Prophet
                             prevNode.UpperRight = parentNode;
@@ -210,8 +224,6 @@ namespace SceneManager
                             prevNode.DownRight = parentNode;
 
                             currentNode = parentNode;
-
-
                         }
 
                     }
