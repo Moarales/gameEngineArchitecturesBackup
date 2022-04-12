@@ -81,18 +81,8 @@ namespace SceneManager
                         }
                         else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
                         {
-/*                            //create empty parent to distinguish both nodes
-                            var parentNode = new Node(prevNode.CenterX - prevNode.CenterExt / 4,
-                                prevNode.CenterY - prevNode.CenterExt / 4,
-                                _size, prevNode.Level + 1);
+                            //create empty parent to distinguish both nodes
 
-
-                            while (DoesNodeContainBothChildNodes(currentNode, cenX, cenY, diagonalSquared,
-                                parentNode.CenterX - parentNode.CenterExt / 4, parentNode.CenterY - parentNode.CenterExt / 4, parentNode.Level + 1))
-                            {
-                                parentNode.UpdateNode(parentNode.CenterX - parentNode.CenterExt / 4, parentNode.CenterY - parentNode.CenterExt / 4, _size, parentNode.Level + 1);
-
-                            }*/
 
                             var parentNode = createEmptyParentForTwochildren(currentNode, cenX, cenY, diagonalSquared);
                             //currentNode is the wrong Prophet
@@ -135,25 +125,7 @@ namespace SceneManager
                         }
                         else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
                         {
-/*                            //create empty parent to distinguish both nodes
-                            var parentNode = new Node(prevNode.CenterX + prevNode.CenterExt/4,
-                                prevNode.CenterY - prevNode.CenterExt/4,
-                                _size, prevNode.Level + 1);
-
-
-                            while (DoesNodeContainBothChildNodes(currentNode, cenX, cenY, diagonalSquared,
-                                parentNode.CenterX+ parentNode.CenterExt / 4 , parentNode.CenterY - parentNode.CenterExt / 4, parentNode.Level +1))
-                            {
-                                parentNode.UpdateNode(parentNode.CenterX + parentNode.CenterExt/4, parentNode.CenterY - parentNode.CenterExt/4, _size, parentNode.Level+1);
-
-                            }
-                            
-                            //currentNode is the wrong Prophet
-                            prevNode.UpperRight = parentNode;
-
-                            parentNode.PlaceNodeAsChild(currentNode);
-                            currentNode = parentNode;
-*/
+                            //create empty parent to distinguish both nodes
 
 
                             var parentNode = createEmptyParentForTwochildren(currentNode, cenX, cenY, diagonalSquared);
@@ -192,25 +164,7 @@ namespace SceneManager
                         }
                         else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
                         {
-/*                            //create empty parent to distinguish both nodes
-                            var parentNode = new Node(prevNode.CenterX - prevNode.CenterExt/4,
-                                prevNode.CenterY + prevNode.CenterExt/4,
-                                _size, prevNode.Level + 1);
-
-
-                            while (DoesNodeContainBothChildNodes(currentNode, cenX, cenY, diagonalSquared,
-                                parentNode.CenterX - parentNode.CenterExt / 4 , parentNode.CenterY + parentNode.CenterExt / 4, parentNode.Level +1))
-                            {
-                                parentNode.UpdateNode(parentNode.CenterX - parentNode.CenterExt/4, parentNode.CenterY + parentNode.CenterExt/4, _size, parentNode.Level+1);
-
-                            }
-                            
-                            //currentNode is the wrong Prophet
-                            prevNode.DownLeft = parentNode;
-
-                            parentNode.PlaceNodeAsChild(currentNode);
-                            currentNode = parentNode;*/
-
+                            //create empty parent to distinguish both nodes
 
                             var parentNode = createEmptyParentForTwochildren(currentNode, cenX, cenY, diagonalSquared);
                             //currentNode is the wrong Prophet
@@ -248,24 +202,8 @@ namespace SceneManager
                         }
                         else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
                         {
-/*                            //create empty parent to distinguish both nodes
-                            var parentNode = new Node(prevNode.CenterX + prevNode.CenterExt/4,
-                                prevNode.CenterY + prevNode.CenterExt/4,
-                                _size, prevNode.Level + 1);
+                            //create empty parent to distinguish both nodes
 
-
-                            while (DoesNodeContainBothChildNodes(currentNode, cenX, cenY, diagonalSquared,
-                                parentNode.CenterX + parentNode.CenterExt / 4 , parentNode.CenterY + parentNode.CenterExt / 4, parentNode.Level +1))
-                            {
-                                parentNode.UpdateNode(parentNode.CenterX + parentNode.CenterExt/4, parentNode.CenterY + parentNode.CenterExt/4, _size, parentNode.Level+1);
-
-                            }
-                            
-                            //currentNode is the wrong Prophet
-                            prevNode.DownRight = parentNode;
-
-                            parentNode.PlaceNodeAsChild(currentNode);
-                            currentNode = parentNode;*/
 
                             var parentNode = createEmptyParentForTwochildren(currentNode, cenX, cenY, diagonalSquared);
                             //currentNode is the wrong Prophet
@@ -311,7 +249,7 @@ namespace SceneManager
             return (firstNode.CenterX >= CenterX - CenterExt && firstNode.CenterX <= CenterX + CenterExt) &&
                    (firstNode.CenterY >= CenterY - CenterExt && firstNode.CenterY <= CenterY + CenterExt) &&
                    (ChildX >= CenterX - CenterExt && ChildX <= CenterX + CenterExt) &&
-                   (ChildY >= CenterY - CenterExt && ChildY <= CenterY + CenterExt) && (CenterExt*CenterExt) >= diagonalSquardChild;
+                   (ChildY >= CenterY - CenterExt && ChildY <= CenterY + CenterExt) && (CenterExt * CenterExt) >= diagonalSquardChild;
         }
 
         private Node createEmptyParentForTwochildren(Node childNode, int cenX, int cenY, int diagonalSquared)
@@ -329,7 +267,7 @@ namespace SceneManager
                 x = calculateParentPosition(x, parentNode.CenterExt);
                 y = calculateParentPosition(y, parentNode.CenterExt);
                 level -= 1;
-                parentNode.UpdateNode(x,y,this._size, level);
+                parentNode.UpdateNode(x, y, this._size, level);
             }
 
 
@@ -344,7 +282,7 @@ namespace SceneManager
             int parentSize = childSize * 2;
 
             int value = xOrY / parentSize;
-            return value* parentSize + parentSize / 2;
+            return value * parentSize + parentSize / 2;
         }
 
 

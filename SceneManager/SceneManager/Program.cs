@@ -46,24 +46,12 @@ namespace SceneManager
             Debug.Assert(sceneManager._root.DownLeft.BoundingBoxes.Count == 0);
             Debug.Assert(sceneManager._root.DownLeft.DownRight.BoundingBoxes.Count == 1);
             Debug.Assert(sceneManager._root.DownLeft.UpperLeft.BoundingBoxes.Count == 1);
-
-
-
             Debug.Assert(sceneManager.insertBoundingBox(56, 56, 3, 3) == 10);
             Debug.Assert(sceneManager.insertBoundingBox(56, 56, 3, 3) == 11);
             Debug.Assert(sceneManager._root.DownRight.BoundingBoxes.Count == 2);
-
-
             Debug.Assert(sceneManager.insertBoundingBox(92, 56, 3, 3) == 12);
-
             Debug.Assert(sceneManager._root.DownRight.UpperRight.BoundingBoxes.Count == 1);
             Debug.Assert(sceneManager._root.DownRight.UpperLeft.BoundingBoxes.Count == 2);
-
-
-
-
-
-            //TODO::Fix bug if squared equals 1  without area
 
 
             Console.WriteLine("Press any key for exit");
