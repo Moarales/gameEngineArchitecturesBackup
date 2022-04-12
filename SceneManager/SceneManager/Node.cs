@@ -5,11 +5,11 @@ namespace SceneManager
 {
     public class Node
     {
-        public Node(int centerX, int centerY, int size, int level)
+        public Node(int centerX, int centerY, int size_of_sceneManager, int level)
         {
             CenterX = centerX;
             CenterY = centerY;
-            CenterExt = size / (int)Math.Pow(2, level);
+            CenterExt = size_of_sceneManager / (int)Math.Pow(2, level);
             Level = level;
             DiagonalSquared = 2 * (int)Math.Pow(CenterExt, 2);
         }

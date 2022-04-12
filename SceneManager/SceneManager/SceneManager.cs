@@ -28,7 +28,7 @@ namespace SceneManager
             Console.WriteLine("Created bb with id: " + boundingBox.Id);
 
 
-            //TODO: Root is always created? I think i could get rid of that if there is only one node we don't need a root node
+            //TODO: Root is always created? what  if there is only one node we don't need a root node
             if (_root == null)
             {
                 _root = new Node(_size / 2, _size / 2, _size, 0);
@@ -54,8 +54,9 @@ namespace SceneManager
 
                 prevNode = currentNode;
 
-                if (currentNode.CenterX > cenX && currentNode.CenterY > cenY)
+                if (currentNode.CenterX >= cenX && currentNode.CenterY >= cenY)
                 {
+                    //if this is true just update the node and make it smaller
                     if (createdEmptyNodeInPreviousIteration)
                     {
 
@@ -80,7 +81,7 @@ namespace SceneManager
                         }
                         else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
                         {
-                            //create empty parent to distinguish both nodes
+/*                            //create empty parent to distinguish both nodes
                             var parentNode = new Node(prevNode.CenterX - prevNode.CenterExt / 4,
                                 prevNode.CenterY - prevNode.CenterExt / 4,
                                 _size, prevNode.Level + 1);
@@ -91,12 +92,12 @@ namespace SceneManager
                             {
                                 parentNode.UpdateNode(parentNode.CenterX - parentNode.CenterExt / 4, parentNode.CenterY - parentNode.CenterExt / 4, _size, parentNode.Level + 1);
 
-                            }
+                            }*/
 
+                            var parentNode = createEmptyParentForTwochildren(currentNode, cenX, cenY, diagonalSquared);
                             //currentNode is the wrong Prophet
                             prevNode.UpperLeft = parentNode;
 
-                            parentNode.PlaceNodeAsChild(currentNode);
                             currentNode = parentNode;
 
                         }
@@ -105,14 +106,14 @@ namespace SceneManager
                     }
 
                 }
-                else if (currentNode.CenterX < cenX && currentNode.CenterY > cenY)
+                else if (currentNode.CenterX < cenX && currentNode.CenterY >= cenY)
                 {
+                    //if this is true just update the node and make it smaller
 
                     if (createdEmptyNodeInPreviousIteration)
                     {
 
                         Debug.Assert(currentNode != null, "Current node should never be null in here");
-                        createdEmptyNodeInPreviousIteration = true;
                         //if prev node is empty we can just reuse the current node and update center/ ext 
                         currentNode.UpdateNode(currentNode.CenterX + currentNode.CenterExt / 4,
                             currentNode.CenterY - currentNode.CenterExt / 4,
@@ -134,7 +135,7 @@ namespace SceneManager
                         }
                         else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
                         {
-                            //create empty parent to distinguish both nodes
+/*                            //create empty parent to distinguish both nodes
                             var parentNode = new Node(prevNode.CenterX + prevNode.CenterExt/4,
                                 prevNode.CenterY - prevNode.CenterExt/4,
                                 _size, prevNode.Level + 1);
@@ -152,12 +153,22 @@ namespace SceneManager
 
                             parentNode.PlaceNodeAsChild(currentNode);
                             currentNode = parentNode;
+*/
+
+
+                            var parentNode = createEmptyParentForTwochildren(currentNode, cenX, cenY, diagonalSquared);
+                            //currentNode is the wrong Prophet
+                            prevNode.UpperRight = parentNode;
+
+                            currentNode = parentNode;
 
                         }
                     }
                 }
-                else if (currentNode.CenterX > cenX && currentNode.CenterY < cenY)
+                else if (currentNode.CenterX >= cenX && currentNode.CenterY < cenY)
                 {
+                    //if this is true just update the node and make it smaller
+
                     if (createdEmptyNodeInPreviousIteration)
                     {
                         Debug.Assert(currentNode != null, "Current node should never be null in here");
@@ -181,7 +192,7 @@ namespace SceneManager
                         }
                         else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
                         {
-                            //create empty parent to distinguish both nodes
+/*                            //create empty parent to distinguish both nodes
                             var parentNode = new Node(prevNode.CenterX - prevNode.CenterExt/4,
                                 prevNode.CenterY + prevNode.CenterExt/4,
                                 _size, prevNode.Level + 1);
@@ -198,6 +209,13 @@ namespace SceneManager
                             prevNode.DownLeft = parentNode;
 
                             parentNode.PlaceNodeAsChild(currentNode);
+                            currentNode = parentNode;*/
+
+
+                            var parentNode = createEmptyParentForTwochildren(currentNode, cenX, cenY, diagonalSquared);
+                            //currentNode is the wrong Prophet
+                            prevNode.DownLeft = parentNode;
+
                             currentNode = parentNode;
 
                         }
@@ -205,6 +223,8 @@ namespace SceneManager
                 }
                 else if (currentNode.CenterX < cenX && currentNode.CenterY < cenY)
                 {
+                    //if this is true just update the node and make it smaller
+
                     if (createdEmptyNodeInPreviousIteration)
                     {
                         Debug.Assert(currentNode != null, "Current node should never be null in here");
@@ -228,7 +248,7 @@ namespace SceneManager
                         }
                         else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
                         {
-                            //create empty parent to distinguish both nodes
+/*                            //create empty parent to distinguish both nodes
                             var parentNode = new Node(prevNode.CenterX + prevNode.CenterExt/4,
                                 prevNode.CenterY + prevNode.CenterExt/4,
                                 _size, prevNode.Level + 1);
@@ -245,7 +265,14 @@ namespace SceneManager
                             prevNode.DownRight = parentNode;
 
                             parentNode.PlaceNodeAsChild(currentNode);
+                            currentNode = parentNode;*/
+
+                            var parentNode = createEmptyParentForTwochildren(currentNode, cenX, cenY, diagonalSquared);
+                            //currentNode is the wrong Prophet
+                            prevNode.DownRight = parentNode;
+
                             currentNode = parentNode;
+
 
                         }
 
@@ -285,6 +312,39 @@ namespace SceneManager
                    (firstNode.CenterY >= CenterY - CenterExt && firstNode.CenterY <= CenterY + CenterExt) &&
                    (ChildX >= CenterX - CenterExt && ChildX <= CenterX + CenterExt) &&
                    (ChildY >= CenterY - CenterExt && ChildY <= CenterY + CenterExt) && (CenterExt*CenterExt) >= diagonalSquardChild;
+        }
+
+        private Node createEmptyParentForTwochildren(Node childNode, int cenX, int cenY, int diagonalSquared)
+
+        {
+            int x = calculateParentPosition(childNode.CenterX, childNode.CenterExt);
+            int y = calculateParentPosition(childNode.CenterY, childNode.CenterExt);
+            int level = childNode.Level - 1;
+
+
+            var parentNode = new Node(x, y, this._size, level);
+
+            while (!DoesNodeContainBothChildNodes(childNode, cenX, cenY, diagonalSquared, x, y, level))
+            {
+                x = calculateParentPosition(x, parentNode.CenterExt);
+                y = calculateParentPosition(y, parentNode.CenterExt);
+                level -= 1;
+                parentNode.UpdateNode(x,y,this._size, level);
+            }
+
+
+            parentNode.PlaceNodeAsChild(childNode);
+
+            return parentNode;
+        }
+
+        private int calculateParentPosition(int xOrY, int childSize)
+        {
+
+            int parentSize = childSize * 2;
+
+            int value = xOrY / parentSize;
+            return value* parentSize + parentSize / 2;
         }
 
 

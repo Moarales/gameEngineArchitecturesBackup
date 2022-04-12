@@ -8,12 +8,12 @@ namespace SceneManager
 
         static BoundingBoxManager()
         {
-            _id = 0;
+            _id = 1;
         }
 
         private BoundingBoxManager()
         {
-            _id = 0;
+            _id = 1;
         }
 
         public static BoundingBoxManager Instance { get; } = new BoundingBoxManager();
