@@ -88,30 +88,13 @@ namespace SceneManager
                     }
                     else
                     {
+
                         currentNode = currentNode.UpperLeft;
-                        if (currentNode == null)
-                        {
-                            createdEmptyNodeInPreviousIteration = true;
 
-/*                            prevNode.UpperLeft = new Node(prevNode.CenterX - prevNode.CenterExt / 4,
-                                prevNode.CenterY - prevNode.CenterExt / 4,
-                                _size, prevNode.Level + 1);*/
 
-                            prevNode.UpperLeft = createEmptyChildNode(cenX, cenY, prevNode);
+                        void SetPrevNode(Node node) => prevNode.UpperLeft = node;
 
-                            currentNode = prevNode.UpperLeft;
-
-                        }
-                        else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
-                        {
-                            //create empty parent to distinguish both nodes
-                            var parentNode = createEmptyParentForTwochildren(currentNode, cenX, cenY, diagonalSquared);
-                            //currentNode is the wrong Prophet
-                            prevNode.UpperLeft = parentNode;
-
-                            currentNode = parentNode;
-
-                        }
+                        handleChildCreation(ref currentNode, prevNode, SetPrevNode, ref createdEmptyNodeInPreviousIteration,cenX, cenY,diagonalSquared);
 
                     }
 
@@ -131,28 +114,13 @@ namespace SceneManager
                     }
                     else
                     {
+
+
                         currentNode = currentNode.UpperRight;
-                        if (currentNode == null)
-                        {
+                        void SetPrevNode(Node node) => prevNode.UpperRight = node;
 
-                            createdEmptyNodeInPreviousIteration = true;
+                        handleChildCreation(ref currentNode, prevNode, SetPrevNode, ref createdEmptyNodeInPreviousIteration, cenX, cenY, diagonalSquared);
 
-                            /*                  prevNode.UpperRight = new Node(prevNode.CenterX + prevNode.CenterExt / 4,
-                                                  prevNode.CenterY - prevNode.CenterExt / 4,
-                                                  _size, prevNode.Level + 1);*/
-                            prevNode.UpperRight = createEmptyChildNode(cenX, cenY, prevNode);
-                            currentNode = prevNode.UpperRight;
-                        }
-                        else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
-                        {
-                            //create empty parent to distinguish both nodes
-                            var parentNode = createEmptyParentForTwochildren(currentNode, cenX, cenY, diagonalSquared);
-                            //currentNode is the wrong Prophet
-                            prevNode.UpperRight = parentNode;
-
-                            currentNode = parentNode;
-
-                        }
                     }
                 }
                 else if (currentNode.CenterX >= cenX && currentNode.CenterY < cenY)
@@ -170,33 +138,10 @@ namespace SceneManager
                     else
                     {
                         currentNode = currentNode.DownLeft;
+                        void SetPrevNode(Node node) => prevNode.DownLeft = node;
 
-                        if (currentNode == null)
-                        {
-                            createdEmptyNodeInPreviousIteration = true;
+                        handleChildCreation(ref currentNode, prevNode, SetPrevNode, ref createdEmptyNodeInPreviousIteration, cenX, cenY, diagonalSquared);
 
-/*                            prevNode.DownLeft = new Node(prevNode.CenterX - prevNode.CenterExt / 4,
-                                prevNode.CenterY + prevNode.CenterExt / 4,
-                                _size, prevNode.Level + 1);*/
-
-
-                            prevNode.DownLeft = createEmptyChildNode(cenX, cenY, prevNode);
-
-                            currentNode = prevNode.DownLeft;
-
-
-                        }
-                        else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
-                        {
-                            //create empty parent to distinguish both nodes
-
-                            var parentNode = createEmptyParentForTwochildren(currentNode, cenX, cenY, diagonalSquared);
-                            //currentNode is the wrong Prophet
-                            prevNode.DownLeft = parentNode;
-
-                            currentNode = parentNode;
-
-                        }
                     }
                 }
                 else if (currentNode.CenterX < cenX && currentNode.CenterY < cenY)
@@ -214,31 +159,9 @@ namespace SceneManager
                     else
                     {
                         currentNode = currentNode.DownRight;
+                        void SetPrevNode(Node node) => prevNode.DownRight = node;
 
-                        if (currentNode == null)
-                        {
-                            createdEmptyNodeInPreviousIteration = true;
-
-/*                            prevNode.DownRight = new Node(prevNode.CenterX + prevNode.CenterExt / 4,
-                                prevNode.CenterY + prevNode.CenterExt / 4,
-                                _size, prevNode.Level + 1);*/
-
-                            prevNode.DownRight = createEmptyChildNode(cenX, cenY, prevNode);
-
-                            currentNode = prevNode.DownRight;
-                        }
-                        else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
-                        {
-                            //create empty parent to distinguish both nodes
-
-
-                            var parentNode = createEmptyParentForTwochildren(currentNode, cenX, cenY, diagonalSquared);
-                            //currentNode is the wrong Prophet
-                            prevNode.DownRight = parentNode;
-
-                            currentNode = parentNode;
-                        }
-
+                        handleChildCreation(ref currentNode, prevNode, SetPrevNode, ref createdEmptyNodeInPreviousIteration, cenX, cenY, diagonalSquared);
                     }
 
 
@@ -260,6 +183,33 @@ namespace SceneManager
 
             return boundingBox.Id;
         }
+
+        private void handleChildCreation(ref Node currentNode,Node prevNode, Action<Node> setChildOfPrevNode, ref bool createdEmptyNodeInPreviousIteration, int cenX, int cenY, int diagonalSquared)
+        {
+            if (currentNode == null)
+            {
+                createdEmptyNodeInPreviousIteration = true;
+
+                Node newNode = createEmptyChildNode(cenX, cenY, prevNode);
+
+                setChildOfPrevNode(newNode);
+
+                currentNode = newNode;
+            }
+            else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
+            {
+                //create empty parent to distinguish both nodes
+
+
+                var parentNode = createEmptyParentForTwochildren(currentNode, cenX, cenY, diagonalSquared);
+                //currentNode is the wrong Prophet
+                setChildOfPrevNode(parentNode);
+
+                currentNode = parentNode;
+            }
+
+        }
+
 
         private bool CheckIfNodeFound(Node currentNode, int diagonalSquared)
         {
