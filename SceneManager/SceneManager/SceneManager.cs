@@ -62,7 +62,7 @@ namespace SceneManager
 
 
             //check if root is already the place for new bb
-            var bb_found = currentNode.DiagonalSquared <= diagonalSquared;
+            var bb_found = currentNode.DiagonalSquared <= boundingBox.DiagonalSquared;
 
             bool createdEmptyNodeInPreviousIteration = false;
 
@@ -94,7 +94,7 @@ namespace SceneManager
 
                         void SetPrevNode(Node node) => prevNode.UpperLeft = node;
 
-                        handleChildCreation(ref currentNode, prevNode, SetPrevNode, ref createdEmptyNodeInPreviousIteration,cenX, cenY,diagonalSquared);
+                        handleChildCreation(ref currentNode, prevNode, SetPrevNode, ref createdEmptyNodeInPreviousIteration, boundingBox);
 
                     }
 
@@ -119,7 +119,7 @@ namespace SceneManager
                         currentNode = currentNode.UpperRight;
                         void SetPrevNode(Node node) => prevNode.UpperRight = node;
 
-                        handleChildCreation(ref currentNode, prevNode, SetPrevNode, ref createdEmptyNodeInPreviousIteration, cenX, cenY, diagonalSquared);
+                        handleChildCreation(ref currentNode, prevNode, SetPrevNode, ref createdEmptyNodeInPreviousIteration, boundingBox);
 
                     }
                 }
@@ -140,7 +140,7 @@ namespace SceneManager
                         currentNode = currentNode.DownLeft;
                         void SetPrevNode(Node node) => prevNode.DownLeft = node;
 
-                        handleChildCreation(ref currentNode, prevNode, SetPrevNode, ref createdEmptyNodeInPreviousIteration, cenX, cenY, diagonalSquared);
+                        handleChildCreation(ref currentNode, prevNode, SetPrevNode, ref createdEmptyNodeInPreviousIteration, boundingBox);
 
                     }
                 }
@@ -161,7 +161,7 @@ namespace SceneManager
                         currentNode = currentNode.DownRight;
                         void SetPrevNode(Node node) => prevNode.DownRight = node;
 
-                        handleChildCreation(ref currentNode, prevNode, SetPrevNode, ref createdEmptyNodeInPreviousIteration, cenX, cenY, diagonalSquared);
+                        handleChildCreation(ref currentNode, prevNode, SetPrevNode, ref createdEmptyNodeInPreviousIteration, boundingBox);
                     }
 
 
@@ -184,24 +184,24 @@ namespace SceneManager
             return boundingBox.Id;
         }
 
-        private void handleChildCreation(ref Node currentNode,Node prevNode, Action<Node> setChildOfPrevNode, ref bool createdEmptyNodeInPreviousIteration, int cenX, int cenY, int diagonalSquared)
+        private void handleChildCreation(ref Node currentNode,Node prevNode, Action<Node> setChildOfPrevNode, ref bool createdEmptyNodeInPreviousIteration, BoundingBox boundingBox)
         {
             if (currentNode == null)
             {
                 createdEmptyNodeInPreviousIteration = true;
 
-                Node newNode = createEmptyChildNode(cenX, cenY, prevNode);
+                Node newNode = createEmptyChildNode(boundingBox.CenX, boundingBox.CenY, prevNode);
 
                 setChildOfPrevNode(newNode);
 
                 currentNode = newNode;
             }
-            else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
+            else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsBoundingBoxInsideNode(boundingBox))
             {
                 //create empty parent to distinguish both nodes
 
 
-                var parentNode = createEmptyParentForTwochildren(currentNode, cenX, cenY, diagonalSquared);
+                var parentNode = createEmptyParentForTwochildren(currentNode,boundingBox);
                 //currentNode is the wrong Prophet
                 setChildOfPrevNode(parentNode);
 
@@ -217,37 +217,35 @@ namespace SceneManager
             return currentNode.DiagonalSquared / 4 < diagonalSquared;
         }
 
-        private bool DoesNodeContainBothChildNodes(Node firstNode, int ChildX, int ChildY, int diagonalSquardChild, int CenterX, int CenterY, int level)
+        private bool DoesNodeContainChildNodeAndBoundingBox(Node firstNode, BoundingBox boundingBox, int ParentCenterX, int ParentCenterY, int ParentLevel)
         {
-            int CenterExt = this._size / (int)Math.Pow(2, level);
+            int CenterExt = this._size / (int)Math.Pow(2, ParentLevel);
 
-            return (firstNode.CenterX >= CenterX - CenterExt && firstNode.CenterX <= CenterX + CenterExt) &&
-                   (firstNode.CenterY >= CenterY - CenterExt && firstNode.CenterY <= CenterY + CenterExt) &&
-                   (ChildX >= CenterX - CenterExt && ChildX <= CenterX + CenterExt) &&
-                   (ChildY >= CenterY - CenterExt && ChildY <= CenterY + CenterExt) && (CenterExt * CenterExt) >= diagonalSquardChild;
+            return (firstNode.CenterX >= ParentCenterX - CenterExt && firstNode.CenterX <= ParentCenterX + CenterExt) &&
+                   (firstNode.CenterY >= ParentCenterY - CenterExt && firstNode.CenterY <= ParentCenterY + CenterExt) &&
+                   (boundingBox.CenX >= ParentCenterX - CenterExt && boundingBox.CenX <= ParentCenterX + CenterExt) &&
+                   (boundingBox.CenY >= ParentCenterY - CenterExt && boundingBox.CenY <= ParentCenterY + CenterExt) && (CenterExt * CenterExt) >= boundingBox.DiagonalSquared;
         }
 
 
 
-        private Node createEmptyParentForTwochildren(Node childNode, int cenX, int cenY, int diagonalSquared)
+        private Node createEmptyParentForTwochildren(Node childNode, BoundingBox boundingBox)
 
         {
-            int x = calculateParentPosition(childNode.CenterX, childNode.CenterExt);
-            int y = calculateParentPosition(childNode.CenterY, childNode.CenterExt);
-            int level = childNode.Level - 1;
+            int parentX = calculateParentPosition(childNode.CenterX, childNode.CenterExt);
+            int parentY = calculateParentPosition(childNode.CenterY, childNode.CenterExt);
+            int parentLevel = childNode.Level - 1;
 
 
-            var parentNode = new Node(x, y, this._size, level);
+            var parentNode = new Node(parentX, parentY, this._size, parentLevel);
 
-            while (!DoesNodeContainBothChildNodes(childNode, cenX, cenY, diagonalSquared, x, y, level))
+            while (!DoesNodeContainChildNodeAndBoundingBox(childNode, boundingBox, parentX, parentY, parentLevel))
             {
-                x = calculateParentPosition(x, parentNode.CenterExt);
-                y = calculateParentPosition(y, parentNode.CenterExt);
-                level -= 1;
-                parentNode.UpdateNode(x, y, this._size, level);
+                parentX = calculateParentPosition(parentX, parentNode.CenterExt);
+                parentY = calculateParentPosition(parentY, parentNode.CenterExt);
+                parentLevel -= 1;
+                parentNode.UpdateNode(parentX, parentY, this._size, parentLevel);
             }
-
-
             parentNode.PlaceNodeAsChild(childNode);
 
             return parentNode;
