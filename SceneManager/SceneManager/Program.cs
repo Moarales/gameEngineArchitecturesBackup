@@ -13,6 +13,7 @@ namespace SceneManager
             Debug.Assert(sceneManager.insertBoundingBox(30, 30, 24, 24) == 1);
             Debug.Assert(sceneManager._root.UpperLeft != null);
             Debug.Assert(sceneManager._root.UpperLeft.BoundingBoxes.Count == 1);
+            Debug.Assert(sceneManager._root.UpperLeft.BoundingBoxes[0].CenX == 30);
 
 
             //insert node inbetween
@@ -51,6 +52,8 @@ namespace SceneManager
             Debug.Assert(sceneManager.insertBoundingBox(92, 56, 3, 3) == 12);
             Debug.Assert(sceneManager._root.DownRight.UpperRight.BoundingBoxes.Count == 1);
             Debug.Assert(sceneManager._root.DownRight.UpperLeft.BoundingBoxes.Count == 2);
+            Debug.Assert(sceneManager._root.DownRight.UpperLeft.BoundingBoxes[0].CenX == 56);
+
 
 
             Console.WriteLine("Press any key for exit");
