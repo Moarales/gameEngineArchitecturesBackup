@@ -8,7 +8,6 @@ namespace SceneManager
         static void Main(string[] args)
         {
 
-            //TODO:: check if node is to big to insert
             //TODO:: Root is always created could be optimized
             var sceneManager = new SceneManager(100);
             Debug.Assert(sceneManager.insertBoundingBox(30, 30, 24, 24) == 1);

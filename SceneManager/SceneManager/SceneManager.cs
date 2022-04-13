@@ -43,7 +43,7 @@ namespace SceneManager
 
             if (diagonalSquared > _root.DiagonalSquared)
             {
-                throw new ArgumentException("BB is to big for our SceneManager, SceneManger set to " + _size +"x"+_size);
+                throw new ArgumentException("BB is to big for our SceneManager, SceneManger set to " + _size + "x" + _size);
             }
             if (cenX > _root.CenterExt + _root.CenterExt || cenX < 0 ||
                       cenY > _root.CenterExt + _root.CenterExt || cenY < 0)
@@ -93,9 +93,12 @@ namespace SceneManager
                         {
                             createdEmptyNodeInPreviousIteration = true;
 
-                            prevNode.UpperLeft = new Node(prevNode.CenterX - prevNode.CenterExt / 4,
+/*                            prevNode.UpperLeft = new Node(prevNode.CenterX - prevNode.CenterExt / 4,
                                 prevNode.CenterY - prevNode.CenterExt / 4,
-                                _size, prevNode.Level + 1);
+                                _size, prevNode.Level + 1);*/
+
+                            prevNode.UpperLeft = createEmptyChildNode(cenX, cenY, prevNode);
+
                             currentNode = prevNode.UpperLeft;
 
                         }
@@ -134,9 +137,10 @@ namespace SceneManager
 
                             createdEmptyNodeInPreviousIteration = true;
 
-                            prevNode.UpperRight = new Node(prevNode.CenterX + prevNode.CenterExt / 4,
-                                prevNode.CenterY - prevNode.CenterExt / 4,
-                                _size, prevNode.Level + 1);
+                            /*                  prevNode.UpperRight = new Node(prevNode.CenterX + prevNode.CenterExt / 4,
+                                                  prevNode.CenterY - prevNode.CenterExt / 4,
+                                                  _size, prevNode.Level + 1);*/
+                            prevNode.UpperRight = createEmptyChildNode(cenX, cenY, prevNode);
                             currentNode = prevNode.UpperRight;
                         }
                         else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
@@ -171,10 +175,16 @@ namespace SceneManager
                         {
                             createdEmptyNodeInPreviousIteration = true;
 
-                            prevNode.DownLeft = new Node(prevNode.CenterX - prevNode.CenterExt / 4,
+/*                            prevNode.DownLeft = new Node(prevNode.CenterX - prevNode.CenterExt / 4,
                                 prevNode.CenterY + prevNode.CenterExt / 4,
-                                _size, prevNode.Level + 1);
+                                _size, prevNode.Level + 1);*/
+
+
+                            prevNode.DownLeft = createEmptyChildNode(cenX, cenY, prevNode);
+
                             currentNode = prevNode.DownLeft;
+
+
                         }
                         else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
                         {
@@ -209,9 +219,12 @@ namespace SceneManager
                         {
                             createdEmptyNodeInPreviousIteration = true;
 
-                            prevNode.DownRight = new Node(prevNode.CenterX + prevNode.CenterExt / 4,
+/*                            prevNode.DownRight = new Node(prevNode.CenterX + prevNode.CenterExt / 4,
                                 prevNode.CenterY + prevNode.CenterExt / 4,
-                                _size, prevNode.Level + 1);
+                                _size, prevNode.Level + 1);*/
+
+                            prevNode.DownRight = createEmptyChildNode(cenX, cenY, prevNode);
+
                             currentNode = prevNode.DownRight;
                         }
                         else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsPointInside(cenX, cenY))
@@ -264,6 +277,8 @@ namespace SceneManager
                    (ChildY >= CenterY - CenterExt && ChildY <= CenterY + CenterExt) && (CenterExt * CenterExt) >= diagonalSquardChild;
         }
 
+
+
         private Node createEmptyParentForTwochildren(Node childNode, int cenX, int cenY, int diagonalSquared)
 
         {
@@ -288,6 +303,14 @@ namespace SceneManager
             return parentNode;
         }
 
+        private Node createEmptyChildNode(int childX, int childY, Node parentNode)
+        {
+            childX = calculateNextChildPosition(childX, parentNode.CenterExt);
+            childY = calculateNextChildPosition(childY, parentNode.CenterExt);
+
+            return new Node(childX, childY, _size, parentNode.Level + 1);
+        }
+
         private int calculateParentPosition(int xOrY, int childSize)
         {
 
@@ -295,6 +318,15 @@ namespace SceneManager
 
             int value = xOrY / parentSize;
             return value * parentSize + parentSize / 2;
+        }
+
+        private int calculateNextChildPosition(int xOrY, int parentSize)
+        {
+
+            int childSize = parentSize / 2;
+
+            int value = xOrY / childSize;
+            return value * childSize + childSize / 2;
         }
 
 
