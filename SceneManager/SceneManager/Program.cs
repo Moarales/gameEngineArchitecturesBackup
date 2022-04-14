@@ -57,7 +57,9 @@ namespace SceneManager
             Debug.Assert(sceneManager._root.DownRight.UpperLeft.BoundingBoxes.Count == 2);
             Debug.Assert(sceneManager._root.DownRight.UpperLeft.BoundingBoxes[0].CenX == 65);
 
-
+            //insert bb with extX 1 and extY 1
+            Debug.Assert(sceneManager.insertBoundingBox(128, 65, 1, 1) == 13);
+            Debug.Assert(sceneManager._root.DownRight.UpperRight.UpperLeft.BoundingBoxes.Count == 1);
 
             Console.WriteLine("Press any key for exit");
             Console.ReadKey();

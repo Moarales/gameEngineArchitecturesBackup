@@ -45,8 +45,8 @@ namespace SceneManager
             {
                 throw new ArgumentException("BB is to big for our SceneManager, SceneManger set to " + _size + "x" + _size);
             }
-            if (cenX > _root.CenterExt + _root.CenterExt || cenX < 0 ||
-                      cenY > _root.CenterExt + _root.CenterExt || cenY < 0)
+            if (cenX > _root.CenterExt || cenX < 0 ||
+                      cenY > _root.CenterExt  || cenY < 0)
             {
                 throw new ArgumentException("BB center is not in our scene");
             }
