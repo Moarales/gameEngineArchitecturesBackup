@@ -82,9 +82,10 @@ namespace SceneManager
 
                         Debug.Assert(currentNode != null, "Current node should never be null in here");
                         //if prev node is empty we can just reuse the current node and update center/ ext 
-                        currentNode.UpdateNode(currentNode.CenterX - currentNode.CenterExt / 4,
+                        DecreaseNodeSize(boundingBox, currentNode);
+/*                        currentNode.UpdateNode(currentNode.CenterX - currentNode.CenterExt / 4,
                             currentNode.CenterY - currentNode.CenterExt / 4,
-                            _size, currentNode.Level + 1);
+                            _size, currentNode.Level + 1);*/
                     }
                     else
                     {
@@ -108,9 +109,12 @@ namespace SceneManager
 
                         Debug.Assert(currentNode != null, "Current node should never be null in here");
                         //if prev node is empty we can just reuse the current node and update center/ ext 
-                        currentNode.UpdateNode(currentNode.CenterX + currentNode.CenterExt / 4,
+
+                        DecreaseNodeSize(boundingBox, currentNode);
+
+         /*               currentNode.UpdateNode(currentNode.CenterX + currentNode.CenterExt / 4,
                             currentNode.CenterY - currentNode.CenterExt / 4,
-                            _size, currentNode.Level + 1);
+                            _size, currentNode.Level + 1);*/
                     }
                     else
                     {
@@ -131,9 +135,12 @@ namespace SceneManager
                     {
                         Debug.Assert(currentNode != null, "Current node should never be null in here");
                         //if prev node is empty we can just reuse the current node and update center/ ext 
-                        currentNode.UpdateNode(currentNode.CenterX - currentNode.CenterExt / 4,
+           /*             currentNode.UpdateNode(currentNode.CenterX - currentNode.CenterExt / 4,
                             currentNode.CenterY + currentNode.CenterExt / 4,
-                            _size, currentNode.Level + 1);
+                            _size, currentNode.Level + 1);*/
+
+                        DecreaseNodeSize(boundingBox, currentNode);
+
                     }
                     else
                     {
@@ -152,9 +159,12 @@ namespace SceneManager
                     {
                         Debug.Assert(currentNode != null, "Current node should never be null in here");
                         //if prev node is empty we can just reuse the current node and update center/ ext 
-                        currentNode.UpdateNode(currentNode.CenterX + currentNode.CenterExt / 4,
+/*                        currentNode.UpdateNode(currentNode.CenterX + currentNode.CenterExt / 4,
                             currentNode.CenterY + currentNode.CenterExt / 4,
-                            _size, currentNode.Level + 1);
+                            _size, currentNode.Level + 1);*/
+
+                        DecreaseNodeSize(boundingBox, currentNode);
+
                     }
                     else
                     {
@@ -227,6 +237,15 @@ namespace SceneManager
                    (boundingBox.CenY >= ParentCenterY - CenterExt && boundingBox.CenY <= ParentCenterY + CenterExt) && (CenterExt * CenterExt) >= boundingBox.DiagonalSquared;
         }
 
+        private void DecreaseNodeSize(BoundingBox boundingBox, Node currentNode)
+        {
+            int smallerCenX = calculateNextChildPosition(boundingBox.CenX, currentNode.CenterExt);
+            int smallerCenY = calculateNextChildPosition(boundingBox.CenY, currentNode.CenterExt);
+
+
+            currentNode.UpdateNode(smallerCenX, smallerCenY, _size, currentNode.Level + 1);
+        }
+
 
 
         private Node createEmptyParentForTwochildren(Node childNode, BoundingBox boundingBox)
@@ -270,7 +289,6 @@ namespace SceneManager
 
         private int calculateNextChildPosition(int xOrY, int parentSize)
         {
-
             int childSize = parentSize / 2;
 
             int value = xOrY / childSize;

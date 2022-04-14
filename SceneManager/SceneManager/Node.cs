@@ -27,11 +27,11 @@ namespace SceneManager
         public int DiagonalSquared { get; private set; }
 
 
-        public void UpdateNode(int centerX, int centerY, int size, int level)
+        public void UpdateNode(int centerX, int centerY, int sceneSize, int level)
         {
             CenterX = centerX;
             CenterY = centerY;
-            CenterExt = size / (int)Math.Pow(2, level);
+            CenterExt = sceneSize / (int)Math.Pow(2, level);
             Level = level;
             DiagonalSquared = 2 * (int)Math.Pow(CenterExt, 2);
         }
