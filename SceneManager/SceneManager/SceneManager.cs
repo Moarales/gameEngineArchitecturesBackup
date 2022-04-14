@@ -167,10 +167,10 @@ namespace SceneManager
         {
             int CenterExt = this._size / (int)Math.Pow(2, ParentLevel);
 
-            return (firstNode.CenterX >= ParentCenterX - CenterExt && firstNode.CenterX <= ParentCenterX + CenterExt) &&
-                   (firstNode.CenterY >= ParentCenterY - CenterExt && firstNode.CenterY <= ParentCenterY + CenterExt) &&
-                   (boundingBox.CenX >= ParentCenterX - CenterExt && boundingBox.CenX <= ParentCenterX + CenterExt) &&
-                   (boundingBox.CenY >= ParentCenterY - CenterExt && boundingBox.CenY <= ParentCenterY + CenterExt) && (CenterExt * CenterExt) >= boundingBox.DiagonalSquared;
+            return (firstNode.CenterX >= ParentCenterX - CenterExt/2 && firstNode.CenterX <= ParentCenterX + CenterExt/2) &&
+                   (firstNode.CenterY >= ParentCenterY - CenterExt/2 && firstNode.CenterY <= ParentCenterY + CenterExt/2) &&
+                   (boundingBox.CenX >= ParentCenterX - CenterExt/2 && boundingBox.CenX <= ParentCenterX + CenterExt/2) &&
+                   (boundingBox.CenY >= ParentCenterY - CenterExt/2 && boundingBox.CenY <= ParentCenterY + CenterExt/2) && (Math.Pow(CenterExt,2)*2) >= boundingBox.DiagonalSquared;
         }
 
         private void DecreaseNodeSize(BoundingBox boundingBox, Node currentNode)

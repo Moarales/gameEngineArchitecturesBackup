@@ -59,8 +59,9 @@ namespace SceneManager
 
         public bool IsBoundingBoxInsideNode(BoundingBox boundingBox)
         {
-            return (boundingBox.CenX >= CenterX - CenterExt && boundingBox.CenX <= CenterX + CenterExt) &&
-                   (boundingBox.CenY >= CenterY - CenterExt && boundingBox.CenY <= CenterY + CenterExt);
+            
+            return (boundingBox.CenX >= CenterX - CenterExt/2 && boundingBox.CenX <= CenterX + CenterExt/2) &&
+                   (boundingBox.CenY >= CenterY - CenterExt/2 && boundingBox.CenY <= CenterY + CenterExt/2);
         }
     }
 }
