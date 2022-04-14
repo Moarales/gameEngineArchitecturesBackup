@@ -74,106 +74,33 @@ namespace SceneManager
 
                 var prevNode = currentNode;
 
+                Action<Node> setPrevNode;
+                Func<Node> getCurrentNode;
+
                 if (currentNode.CenterX >= cenX && currentNode.CenterY >= cenY)
                 {
-                    //if this is true just update the node and make it smaller
-                    if (createdEmptyNodeInPreviousIteration)
-                    {
-
-                        Debug.Assert(currentNode != null, "Current node should never be null in here");
-                        //if prev node is empty we can just reuse the current node and update center/ ext 
-                        DecreaseNodeSize(boundingBox, currentNode);
-/*                        currentNode.UpdateNode(currentNode.CenterX - currentNode.CenterExt / 4,
-                            currentNode.CenterY - currentNode.CenterExt / 4,
-                            _size, currentNode.Level + 1);*/
-                    }
-                    else
-                    {
-
-                        currentNode = currentNode.UpperLeft;
-
-
-                        void SetPrevNode(Node node) => prevNode.UpperLeft = node;
-
-                        handleChildCreation(ref currentNode, prevNode, SetPrevNode, ref createdEmptyNodeInPreviousIteration, boundingBox);
-
-                    }
+                    setPrevNode = (node) => prevNode.UpperLeft = node;
+                    getCurrentNode = () => prevNode.UpperLeft;
 
                 }
                 else if (currentNode.CenterX < cenX && currentNode.CenterY >= cenY)
                 {
-                    //if this is true just update the node and make it smaller
-
-                    if (createdEmptyNodeInPreviousIteration)
-                    {
-
-                        Debug.Assert(currentNode != null, "Current node should never be null in here");
-                        //if prev node is empty we can just reuse the current node and update center/ ext 
-
-                        DecreaseNodeSize(boundingBox, currentNode);
-
-         /*               currentNode.UpdateNode(currentNode.CenterX + currentNode.CenterExt / 4,
-                            currentNode.CenterY - currentNode.CenterExt / 4,
-                            _size, currentNode.Level + 1);*/
-                    }
-                    else
-                    {
+                    setPrevNode = (node) => prevNode.UpperRight = node;
+                    getCurrentNode = () => prevNode.UpperRight;
 
 
-                        currentNode = currentNode.UpperRight;
-                        void SetPrevNode(Node node) => prevNode.UpperRight = node;
-
-                        handleChildCreation(ref currentNode, prevNode, SetPrevNode, ref createdEmptyNodeInPreviousIteration, boundingBox);
-
-                    }
                 }
                 else if (currentNode.CenterX >= cenX && currentNode.CenterY < cenY)
                 {
-                    //if this is true just update the node and make it smaller
+                    setPrevNode = (node) => prevNode.DownLeft = node;
+                    getCurrentNode = () => prevNode.DownLeft;
 
-                    if (createdEmptyNodeInPreviousIteration)
-                    {
-                        Debug.Assert(currentNode != null, "Current node should never be null in here");
-                        //if prev node is empty we can just reuse the current node and update center/ ext 
-           /*             currentNode.UpdateNode(currentNode.CenterX - currentNode.CenterExt / 4,
-                            currentNode.CenterY + currentNode.CenterExt / 4,
-                            _size, currentNode.Level + 1);*/
 
-                        DecreaseNodeSize(boundingBox, currentNode);
-
-                    }
-                    else
-                    {
-                        currentNode = currentNode.DownLeft;
-                        void SetPrevNode(Node node) => prevNode.DownLeft = node;
-
-                        handleChildCreation(ref currentNode, prevNode, SetPrevNode, ref createdEmptyNodeInPreviousIteration, boundingBox);
-
-                    }
                 }
                 else if (currentNode.CenterX < cenX && currentNode.CenterY < cenY)
                 {
-                    //if this is true just update the node and make it smaller
-
-                    if (createdEmptyNodeInPreviousIteration)
-                    {
-                        Debug.Assert(currentNode != null, "Current node should never be null in here");
-                        //if prev node is empty we can just reuse the current node and update center/ ext 
-/*                        currentNode.UpdateNode(currentNode.CenterX + currentNode.CenterExt / 4,
-                            currentNode.CenterY + currentNode.CenterExt / 4,
-                            _size, currentNode.Level + 1);*/
-
-                        DecreaseNodeSize(boundingBox, currentNode);
-
-                    }
-                    else
-                    {
-                        currentNode = currentNode.DownRight;
-                        void SetPrevNode(Node node) => prevNode.DownRight = node;
-
-                        handleChildCreation(ref currentNode, prevNode, SetPrevNode, ref createdEmptyNodeInPreviousIteration, boundingBox);
-                    }
-
+                    setPrevNode = (node) => prevNode.DownRight = node;
+                    getCurrentNode = () => prevNode.DownRight;
 
                 }
                 else
@@ -181,8 +108,23 @@ namespace SceneManager
                     throw new ArgumentException("Quartile not found which is weird and should never happen");
                 }
 
+                //if this is true just update the node and make it smaller
+                if (createdEmptyNodeInPreviousIteration)
+                {
+                    Debug.Assert(currentNode != null, "Current node should never be null in here");
+                    //if prev node is empty we can just reuse the current node and update center/ ext  to make it smaller
+                    DecreaseNodeSize(boundingBox, currentNode);
+                }
+                else
+                {
+                    currentNode = getCurrentNode();
 
-                bb_found = CheckIfNodeFound(currentNode, diagonalSquared);
+                    handleChildCreation(ref currentNode, prevNode, setPrevNode, ref createdEmptyNodeInPreviousIteration, boundingBox);
+
+                }
+
+                //if the next node would be to small we current node should contain our bounding box
+                bb_found =  currentNode.DiagonalSquared / 4 < boundingBox.DiagonalSquared;
             }
 
 
@@ -194,8 +136,9 @@ namespace SceneManager
             return boundingBox.Id;
         }
 
-        private void handleChildCreation(ref Node currentNode,Node prevNode, Action<Node> setChildOfPrevNode, ref bool createdEmptyNodeInPreviousIteration, BoundingBox boundingBox)
+        private void handleChildCreation(ref Node currentNode, Node prevNode, Action<Node> setChildOfPrevNode, ref bool createdEmptyNodeInPreviousIteration, BoundingBox boundingBox)
         {
+            //node hasn't been created before
             if (currentNode == null)
             {
                 createdEmptyNodeInPreviousIteration = true;
@@ -206,12 +149,11 @@ namespace SceneManager
 
                 currentNode = newNode;
             }
+            //node skipped 1 or more levels and can't contain new boundingBox
             else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsBoundingBoxInsideNode(boundingBox))
             {
-                //create empty parent to distinguish both nodes
-
-
-                var parentNode = createEmptyParentForTwochildren(currentNode,boundingBox);
+                //create empty parent that is big enough to contain existing childnode and new childNode where new bounding box is placed
+                var parentNode = createEmptyParentForTwochildren(currentNode, boundingBox);
                 //currentNode is the wrong Prophet
                 setChildOfPrevNode(parentNode);
 
@@ -220,12 +162,6 @@ namespace SceneManager
 
         }
 
-
-        private bool CheckIfNodeFound(Node currentNode, int diagonalSquared)
-        {
-            //if the next node would be to small we found the right node in currentNode
-            return currentNode.DiagonalSquared / 4 < diagonalSquared;
-        }
 
         private bool DoesNodeContainChildNodeAndBoundingBox(Node firstNode, BoundingBox boundingBox, int ParentCenterX, int ParentCenterY, int ParentLevel)
         {
