@@ -259,19 +259,28 @@ namespace SceneManager
             }
 
             var id = currentNode.FindCollidingBoundingBoxes(centerX, centerY, ext);
-            if (id != 0) {return id;}
+            if (id > 0)
+            {
+                return id;
+            }
+
+            //skip all children if node can't contain colliding bb
+            if (id == -1)
+            {
+                return 0;
+            }
             id = recursiveSearchBoundingBox(centerX, centerY, ext,ref currentNode.UpperLeft);
-            if (id != 0)
+            if (id > 0)
             {
                 return id;
             }
             id = recursiveSearchBoundingBox(centerX, centerY, ext, ref currentNode.UpperRight);
-            if (id != 0)
+            if (id > 0)
             {
                 return id;
             }
             id = recursiveSearchBoundingBox(centerX, centerY, ext, ref currentNode.DownLeft);
-            if (id != 0)
+            if (id > 0)
             {
                 return id;
             }

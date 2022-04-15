@@ -67,6 +67,7 @@ namespace SceneManager
 
         /// <summary>
         /// Returns bb id or 0 if not found
+        /// Returns -1 if this Node or any children do not intercept with box
         /// </summary>
         public int FindCollidingBoundingBoxes(int centerX, int centerY, int ext)
         {
@@ -74,7 +75,7 @@ namespace SceneManager
             //if this node cann't contain a colliding bb return 0
             if (!CouldContainCollidingBoundingBox(centerX, centerY, ext))
             {
-                return 0;
+                return -1;
             }
             var collidedBb = BoundingBoxes.Find(bb =>
             {
