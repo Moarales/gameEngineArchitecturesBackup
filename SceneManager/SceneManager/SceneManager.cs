@@ -246,6 +246,11 @@ namespace SceneManager
             int centerX, int centerY, int ext)
         {
             var currentNode = _root;
+
+
+            int id = recursiveSearchBoundingBox(centerX, centerY, ext, ref currentNode);
+
+            Debug.Assert(id >= 0, "Id can't be -1"); 
             return recursiveSearchBoundingBox(centerX, centerY, ext, ref currentNode);
         }
 
@@ -258,6 +263,7 @@ namespace SceneManager
                 return 0;
             }
 
+            //search in currentNode
             var id = currentNode.FindCollidingBoundingBoxes(centerX, centerY, ext);
             if (id > 0)
             {
@@ -269,6 +275,9 @@ namespace SceneManager
             {
                 return 0;
             }
+
+
+            //search all children and return on the first find :)
             id = recursiveSearchBoundingBox(centerX, centerY, ext,ref currentNode.UpperLeft);
             if (id > 0)
             {
