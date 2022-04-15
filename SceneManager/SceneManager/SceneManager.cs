@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.Remoting.Messaging;
 
 // ReSharper disable file InconsistentNaming
 
@@ -37,7 +38,7 @@ namespace SceneManager
                 throw new ArgumentException("BB is to big for our SceneManager, SceneManger set to " + _size + "x" + _size);
             }
             if (cenX > _root.CenterExt || cenX < 0 ||
-                      cenY > _root.CenterExt  || cenY < 0)
+                      cenY > _root.CenterExt || cenY < 0)
             {
                 throw new ArgumentException("BB center is not in our scene");
             }
@@ -56,7 +57,6 @@ namespace SceneManager
             var node_found = currentNode.DiagonalSquared <= boundingBox.DiagonalSquared;
 
             bool createdEmptyNodeInPreviousIteration = false;
-
 
 
             while (!node_found)
@@ -115,7 +115,7 @@ namespace SceneManager
                 }
 
                 //if the next node would be to small we current node should contain our bounding box
-                node_found =  currentNode.DiagonalSquared / 4 < boundingBox.DiagonalSquared;
+                node_found = currentNode.DiagonalSquared / 4 < boundingBox.DiagonalSquared;
             }
 
 
@@ -141,7 +141,7 @@ namespace SceneManager
                 currentNode = newNode;
             }
             //node skipped 1 or more levels and can't contain new boundingBox
-            else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsBoundingBoxInsideNode(boundingBox))
+            else if (currentNode.Level != prevNode.Level + 1 && !currentNode.IsBoundingBoxCenterInsideNode(boundingBox))
             {
                 //create empty parent that is big enough to contain existing childnode and new childNode where new bounding box is placed
                 var parentNode = createEmptyParentForTwochildren(currentNode, boundingBox);
@@ -158,10 +158,10 @@ namespace SceneManager
         {
             int CenterExt = this._size / (int)Math.Pow(2, ParentLevel);
 
-            return (firstNode.CenterX >= ParentCenterX - CenterExt/2 && firstNode.CenterX <= ParentCenterX + CenterExt/2) &&
-                   (firstNode.CenterY >= ParentCenterY - CenterExt/2 && firstNode.CenterY <= ParentCenterY + CenterExt/2) &&
-                   (boundingBox.CenX >= ParentCenterX - CenterExt/2 && boundingBox.CenX <= ParentCenterX + CenterExt/2) &&
-                   (boundingBox.CenY >= ParentCenterY - CenterExt/2 && boundingBox.CenY <= ParentCenterY + CenterExt/2) && (Math.Pow(CenterExt,2)*2) >= boundingBox.DiagonalSquared;
+            return (firstNode.CenterX >= ParentCenterX - CenterExt / 2 && firstNode.CenterX <= ParentCenterX + CenterExt / 2) &&
+                   (firstNode.CenterY >= ParentCenterY - CenterExt / 2 && firstNode.CenterY <= ParentCenterY + CenterExt / 2) &&
+                   (boundingBox.CenX >= ParentCenterX - CenterExt / 2 && boundingBox.CenX <= ParentCenterX + CenterExt / 2) &&
+                   (boundingBox.CenY >= ParentCenterY - CenterExt / 2 && boundingBox.CenY <= ParentCenterY + CenterExt / 2) && (Math.Pow(CenterExt, 2) * 2) >= boundingBox.DiagonalSquared;
         }
 
         private void DecreaseNodeSize(BoundingBox boundingBox, Node currentNode)
@@ -222,6 +222,11 @@ namespace SceneManager
             return value * childSize + childSize / 2;
         }
 
+        public void clearScene()
+        {
+            _root = null;
+        }
+
 
 
         // Remove a bounding box which was inserted before.
@@ -240,7 +245,44 @@ namespace SceneManager
         public int searchAnyBoundingBoxInCube(
             int centerX, int centerY, int ext)
         {
-            throw new Exception("not implemented");
+            var currentNode = _root;
+            return recursiveSearchBoundingBox(centerX, centerY, ext, ref currentNode);
         }
+
+
+        public int recursiveSearchBoundingBox(int centerX, int centerY, int ext, ref Node currentNode)
+        {
+
+            if (currentNode == null)
+            {
+                return 0;
+            }
+
+            var id = currentNode.FindCollidingBoundingBoxes(centerX, centerY, ext);
+            if (id != 0) {return id;}
+            id = recursiveSearchBoundingBox(centerX, centerY, ext,ref currentNode.UpperLeft);
+            if (id != 0)
+            {
+                return id;
+            }
+            id = recursiveSearchBoundingBox(centerX, centerY, ext, ref currentNode.UpperRight);
+            if (id != 0)
+            {
+                return id;
+            }
+            id = recursiveSearchBoundingBox(centerX, centerY, ext, ref currentNode.DownLeft);
+            if (id != 0)
+            {
+                return id;
+            }
+            id = recursiveSearchBoundingBox(centerX, centerY, ext, ref currentNode.DownRight);
+            return id;
+
+        }
+
+
     }
+
+
 }
+

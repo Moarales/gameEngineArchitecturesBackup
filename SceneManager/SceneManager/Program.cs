@@ -61,8 +61,26 @@ namespace SceneManager
             Debug.Assert(sceneManager.insertBoundingBox(128, 65, 1, 1) == 13);
             Debug.Assert(sceneManager._root.DownRight.UpperRight.UpperLeft.BoundingBoxes.Count == 1);
 
+
+            //Searching
+            sceneManager.clearScene();
+            //search the whole scene
+            Debug.Assert(sceneManager.searchAnyBoundingBoxInCube(64,64,128) == 0);
+            Debug.Assert(sceneManager.insertBoundingBox(65, 65, 3, 3) == 14);
+            Debug.Assert(sceneManager.searchAnyBoundingBoxInCube(64, 64, 128) == 14);
+            //should still find this bb
+            Debug.Assert(sceneManager.searchAnyBoundingBoxInCube(110, 110, 128) == 14);
+            //should not find this bb
+            Debug.Assert(sceneManager.searchAnyBoundingBoxInCube(110, 110, 10) == 0);
+
+
+
+
+
             Console.WriteLine("Press any key for exit");
             Console.ReadKey();
+
+
         }
     }
 }

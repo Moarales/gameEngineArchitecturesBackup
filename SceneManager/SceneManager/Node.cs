@@ -57,11 +57,44 @@ namespace SceneManager
             }
         }
 
-        public bool IsBoundingBoxInsideNode(BoundingBox boundingBox)
+        public bool IsBoundingBoxCenterInsideNode(BoundingBox boundingBox)
         {
             
             return (boundingBox.CenX >= CenterX - CenterExt/2 && boundingBox.CenX <= CenterX + CenterExt/2) &&
                    (boundingBox.CenY >= CenterY - CenterExt/2 && boundingBox.CenY <= CenterY + CenterExt/2);
+        }
+
+
+        /// <summary>
+        /// Returns bb id or 0 if not found
+        /// </summary>
+        public int FindCollidingBoundingBoxes(int centerX, int centerY, int ext)
+        {
+
+            //if this node cann't contain a colliding bb return 0
+            if (!CouldContainCollidingBoundingBox(centerX, centerY, ext))
+            {
+                return 0;
+            }
+            var collidedBb = BoundingBoxes.Find(bb =>
+            {
+                return (centerX - ext / 2 <= bb.CenX + bb.ExtX / 2 && centerX + ext / 2 >= bb.CenX - bb.ExtX / 2) &&
+                       (centerY - ext / 2 <= bb.CenY + bb.ExtY / 2 && centerY + ext / 2 >= bb.CenY - bb.ExtY / 2);
+
+            });
+
+            return collidedBb?.Id ?? 0;
+        }
+
+
+        /// <summary>
+        /// Returns true if currentBox could collide with any bounding box inside node
+        /// </summary>
+        private bool CouldContainCollidingBoundingBox(int centerX, int centerY, int ext)
+        {
+            return (centerX - ext / 2 <= this.CenterX + this.CenterExt  && centerX + ext / 2 >= this.CenterX - this.CenterExt) &&
+                   (centerY - ext / 2 <= this.CenterY + this.CenterExt && centerY + ext / 2 >= this.CenterY - this.CenterExt);
+
         }
     }
 }
