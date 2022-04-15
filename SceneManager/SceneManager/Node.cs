@@ -20,6 +20,7 @@ namespace SceneManager
         public Node UpperRight;
         public Node DownLeft;
         public Node DownRight;
+        public Node ParentNode;
         public int CenterY;
         public int CenterX;
         public int CenterExt { get; private set; }
@@ -39,15 +40,16 @@ namespace SceneManager
 
         public void PlaceNodeAsChild( Node childNode)
         {
-            if (this.CenterX > childNode.CenterX && this.CenterY > childNode.CenterY)
+            childNode.ParentNode = this;
+            if (this.CenterX >= childNode.CenterX && this.CenterY >= childNode.CenterY)
             {
                 this.UpperLeft = childNode;
             }
-            else if (this.CenterX < childNode.CenterX && this.CenterY > childNode.CenterY)
+            else if (this.CenterX < childNode.CenterX && this.CenterY >= childNode.CenterY)
             {
                 this.UpperRight = childNode;
             }
-            else if (this.CenterX > childNode.CenterX && this.CenterY < childNode.CenterY)
+            else if (this.CenterX >= childNode.CenterX && this.CenterY < childNode.CenterY)
             {
                 this.DownLeft = childNode;
             }
@@ -55,13 +57,17 @@ namespace SceneManager
             {
                 this.DownRight = childNode;
             }
+            else
+            {
+                throw new Exception("Couldn't place child inside parentNode");
+            }
         }
 
         public bool IsBoundingBoxCenterInsideNode(BoundingBox boundingBox)
         {
             
             return (boundingBox.CenX >= CenterX - CenterExt/2 && boundingBox.CenX <= CenterX + CenterExt/2) &&
-                   (boundingBox.CenY >= CenterY - CenterExt/2 && boundingBox.CenY <= CenterY + CenterExt/2);
+                   (boundingBox.CenY >= CenterY - CenterExt/2 && boundingBox.CenY <= CenterY + CenterExt/2)&& boundingBox.DiagonalSquared<= DiagonalSquared;
         }
 
 
@@ -95,6 +101,84 @@ namespace SceneManager
         {
             return (centerX - ext / 2 <= this.CenterX + this.CenterExt  && centerX + ext / 2 >= this.CenterX - this.CenterExt) &&
                    (centerY - ext / 2 <= this.CenterY + this.CenterExt && centerY + ext / 2 >= this.CenterY - this.CenterExt);
+
+        }
+
+        public int NumberOfChildNodes()
+        {
+            int i = 0;
+            if (UpperRight != null)
+            {
+                i++;
+            }
+            if (UpperLeft != null)
+            {
+                i++;
+            }
+            if (DownLeft != null)
+            {
+                i++;
+            }
+            if (DownRight != null)
+            {
+                i++;
+            }
+
+            return i;
+        }
+
+        public List<Node> GetChildNodes()
+        {
+            var list = new List<Node>();
+
+            if (UpperLeft != null)
+            {
+                list.Add(UpperLeft);
+            }
+
+            if (UpperRight != null)
+            {
+                list.Add(UpperRight);
+            }
+
+            if (DownLeft != null)
+            {
+                list.Add(DownLeft);
+            }
+
+            if (DownRight != null)
+            {
+                list.Add(DownRight);
+            }
+
+            return list;
+        }
+
+        public void DeleteChildNode(Node childNode)
+        {
+
+            if (childNode == null)
+            {
+                throw new ArgumentException("Can't delete empty childnode");
+            }
+
+
+            //finds the given node and deletes the ref
+            if (UpperLeft == childNode)
+            {
+                UpperLeft = null;
+            }else if(UpperRight == childNode)
+            {
+                UpperRight = null;
+            }
+            else if (DownLeft == childNode)
+            {
+                DownLeft = null;
+            }
+            else if (DownRight == childNode)
+            {
+                DownRight = null;
+            }
 
         }
     }

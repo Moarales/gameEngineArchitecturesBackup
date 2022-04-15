@@ -65,7 +65,7 @@ namespace SceneManager
             //Searching
             sceneManager.clearScene();
             //search the whole scene
-            Debug.Assert(sceneManager.searchAnyBoundingBoxInCube(64,64,128) == 0);
+            Debug.Assert(sceneManager.searchAnyBoundingBoxInCube(64, 64, 128) == 0);
             Debug.Assert(sceneManager.insertBoundingBox(65, 65, 3, 3) == 14);
             Debug.Assert(sceneManager.searchAnyBoundingBoxInCube(64, 64, 128) == 14);
             //should still find this bb
@@ -74,7 +74,39 @@ namespace SceneManager
             Debug.Assert(sceneManager.searchAnyBoundingBoxInCube(110, 110, 10) == 0);
 
 
+            sceneManager.removeBoundingBox(14);
 
+
+            //insert small node
+            Debug.Assert(sceneManager.insertBoundingBox(65, 65, 3, 3) == 15);
+
+            //insert bigger node on top
+            Debug.Assert(sceneManager.insertBoundingBox(65, 65, 30, 30) == 16);
+            //remove bigger node
+            sceneManager.removeBoundingBox(16);
+            Debug.Assert(sceneManager._root.DownRight.BoundingBoxes[0].ExtX == 3);
+            sceneManager.removeBoundingBox(15);
+
+            //only empty root should now be inside
+            Debug.Assert(sceneManager._root.GetChildNodes().Count == 0);
+
+
+            //insert small node
+            Debug.Assert(sceneManager.insertBoundingBox(1, 1, 3, 3) == 17);
+
+            //insert smale  node on rightSide
+            Debug.Assert(sceneManager.insertBoundingBox(55, 1, 3, 3) == 18);
+
+            Debug.Assert(sceneManager._root.UpperLeft.UpperLeft != null);
+            Debug.Assert(sceneManager._root.UpperLeft.UpperRight != null);
+
+            //remove one node now there should only be 1 childNode
+            sceneManager.removeBoundingBox(18);
+            Debug.Assert(sceneManager._root.UpperLeft.BoundingBoxes.Count == 1);
+
+            sceneManager.removeBoundingBox(17);
+
+            Debug.Assert(sceneManager._root.BoundingBoxes.Count == 0);
 
 
             Console.WriteLine("Press any key for exit");

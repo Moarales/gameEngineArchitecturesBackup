@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.Remoting.Messaging;
 
@@ -7,14 +8,28 @@ using System.Runtime.Remoting.Messaging;
 
 namespace SceneManager
 {
+
+    class DictionaryPair
+    {
+        public DictionaryPair(Node node, BoundingBox box)
+        {
+            Node = node;
+            Box = box;
+        }
+        public Node Node;
+        public BoundingBox Box;
+    }
     internal class SceneManager
     {
         public SceneManager(int size)
         {
             _size = size;
+            _dictionary = new Dictionary<int, DictionaryPair>();
         }
 
         private readonly int _size;
+        private Dictionary<int, DictionaryPair> _dictionary;
+
         public Node _root { get; private set; }
 
         // Insert a axis aligned bounding box
@@ -120,6 +135,7 @@ namespace SceneManager
 
 
             currentNode.BoundingBoxes.Add(boundingBox);
+            _dictionary.Add(boundingBox.Id, new DictionaryPair(currentNode, boundingBox));
 
             Debug.Assert(currentNode.DiagonalSquared >= diagonalSquared, "Bounding Box to Big for Node :(");
 
@@ -135,8 +151,11 @@ namespace SceneManager
                 createdEmptyNodeInPreviousIteration = true;
 
                 Node newNode = createEmptyChildNode(boundingBox.CenX, boundingBox.CenY, prevNode);
-
+                newNode.ParentNode = prevNode;
                 setChildOfPrevNode(newNode);
+
+                //update parentNode
+                newNode.ParentNode = prevNode;
 
                 currentNode = newNode;
             }
@@ -147,6 +166,10 @@ namespace SceneManager
                 var parentNode = createEmptyParentForTwochildren(currentNode, boundingBox);
                 //currentNode is the wrong Prophet
                 setChildOfPrevNode(parentNode);
+
+                //update parent nodes
+                parentNode.ParentNode = prevNode;
+                currentNode.ParentNode = parentNode;
 
                 currentNode = parentNode;
             }
@@ -232,7 +255,52 @@ namespace SceneManager
         // Remove a bounding box which was inserted before.
         public void removeBoundingBox(int id)
         {
-            throw new Exception("not implemented");
+            if (_dictionary.TryGetValue(id, out var currentEntry))
+            {
+                var node = currentEntry.Node;
+                var box = currentEntry.Box;
+
+                Debug.Assert(node.BoundingBoxes.Count != 0, "Can't be null if inside dictionary");
+
+
+                //remove bb from node
+                node.BoundingBoxes.Remove(box);
+
+                if (node.BoundingBoxes.Count == 0 && node != _root)
+                {
+                    if (node.NumberOfChildNodes() == 1)
+                    {
+                        //if we only have one node get our childNode and add it to our parentNode
+                        var childNodes = node.GetChildNodes();
+
+                        //overwrite parent ref to delete our node which is useless
+                        node.ParentNode.PlaceNodeAsChild(childNodes[0]);
+
+
+                    }else if (node.NumberOfChildNodes() == 0)
+                    {
+                        //remove currentNode
+                        node.ParentNode.DeleteChildNode(node);
+
+                        //edge case:: parent without bb and only one child is unecessary
+                        if (node.ParentNode != _root && node.ParentNode.GetChildNodes().Count == 1&&node.ParentNode.BoundingBoxes.Count == 0&& node.ParentNode !=null)
+                        {
+                            var childNodes =node.ParentNode.GetChildNodes();
+                            node.ParentNode.ParentNode.PlaceNodeAsChild(childNodes[0]);
+                        }
+                    }
+
+                }
+
+                //remove id from dictionary
+                _dictionary.Remove(id);
+
+            }
+            else
+            {
+                throw new ArgumentException("Bounding Box Id not found in Tree");
+            }
+
         }
 
         // Return the ID of one bounding box which touches, intersects
@@ -275,7 +343,6 @@ namespace SceneManager
             {
                 return 0;
             }
-
 
             //search all children and return on the first find :)
             id = recursiveSearchBoundingBox(centerX, centerY, ext,ref currentNode.UpperLeft);
