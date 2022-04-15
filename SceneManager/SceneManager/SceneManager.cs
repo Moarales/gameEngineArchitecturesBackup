@@ -250,7 +250,7 @@ namespace SceneManager
         }
 
 
-        public int recursiveSearchBoundingBox(int centerX, int centerY, int ext, ref Node currentNode)
+        private int recursiveSearchBoundingBox(int centerX, int centerY, int ext, ref Node currentNode)
         {
 
             if (currentNode == null)
@@ -279,10 +279,6 @@ namespace SceneManager
             return id;
 
         }
-
-
     }
-
-
 }
 
