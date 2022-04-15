@@ -23,19 +23,10 @@ namespace SceneManager
         public int insertBoundingBox(
             int cenX, int cenY, int extX, int extY)
         {
-
-
-
-
-
-            //TODO: Root is always created? what  if there is only one node we don't need a root node
             if (_root == null)
             {
                 _root = new Node(_size / 2, _size / 2, _size, 0);
             }
-
-
-
 
             var currentNode = _root;
 
@@ -62,13 +53,13 @@ namespace SceneManager
 
 
             //check if root is already the place for new bb
-            var bb_found = currentNode.DiagonalSquared <= boundingBox.DiagonalSquared;
+            var node_found = currentNode.DiagonalSquared <= boundingBox.DiagonalSquared;
 
             bool createdEmptyNodeInPreviousIteration = false;
 
 
 
-            while (!bb_found)
+            while (!node_found)
             {
                 Debug.Assert(currentNode != null, "current node shouldn't be null");
 
@@ -124,7 +115,7 @@ namespace SceneManager
                 }
 
                 //if the next node would be to small we current node should contain our bounding box
-                bb_found =  currentNode.DiagonalSquared / 4 < boundingBox.DiagonalSquared;
+                node_found =  currentNode.DiagonalSquared / 4 < boundingBox.DiagonalSquared;
             }
 
 
