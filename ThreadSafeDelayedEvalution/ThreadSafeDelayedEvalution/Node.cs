@@ -19,9 +19,12 @@ namespace ThreadSafeDelayedEvalution
 
         private void CustomDeStructor()
         {
-            throw new Exception("not implemented");
 
-            //TODO: Clear all parent nodes from my node
+            //delete my self from observer list of parent if i was destroyed
+            if (_parent._observerList.Contains(this))
+            {
+                _observerList.Remove(this);
+            }
         }
 
 
