@@ -2,7 +2,6 @@
 
 Node::~Node()
 {
-
 	const std::lock_guard<std::mutex>locked(_mutex);
 	if(_parent != nullptr)
 	{
@@ -10,8 +9,6 @@ Node::~Node()
 		_parent->releaseReference();
 		_parent = nullptr;
 	}
-
-
 }
 
 void Node::addReference()
@@ -22,14 +19,14 @@ void Node::addReference()
 
 void Node::releaseReference()
 {
-
+	
 	//set scope
 	{
 		const std::lock_guard<std::mutex>locked(_mutexRef);
 		_refCounter--;
 	}
 
-	if(_refCounter == 0 && _observerList.empty())
+	if(_refCounter == 0)
 	{
 		delete this;
 	}
@@ -42,17 +39,19 @@ void Node::setParent(Node* parent)
 	if(_parent != nullptr)
 	{
 		parent->unsubscribeNotification(this);
+		parent->releaseReference();
 	}
 	_parent = parent;
 
 	_parent->registerNotification(this);
+	_parent->addReference();
 	setDirty();
 }
 
 void Node::setParam(int param)
 {
-
 	{
+		const std::lock_guard<std::mutex>locked(_mutex);
 		_param = param;
 
 	}
@@ -61,6 +60,7 @@ void Node::setParam(int param)
 
 int Node::getResult()
 {
+	const std::lock_guard<std::mutex>locked(_mutex);
 	if(_dirty)
 	{
 		_dirty = false;
@@ -89,7 +89,10 @@ void Node::setDirty()
 		observer->setDirty();
 	}
 
-	_parent->unsubscribeNotification(this);
+	if(_parent != nullptr)
+	{
+		_parent->unsubscribeNotification(this);
+	}
 }
 
 void Node::registerNotification(Node* depNode)
@@ -97,7 +100,7 @@ void Node::registerNotification(Node* depNode)
 
 	const std::lock_guard<std::mutex>locked(_mutex);
 
-	if(std::find(_observerList.begin(), _observerList.end(), depNode) != _observerList.end())
+	if(std::find(_observerList.begin(), _observerList.end(), depNode) == _observerList.end())
 	{
 		_observerList.push_back(depNode);
 	}

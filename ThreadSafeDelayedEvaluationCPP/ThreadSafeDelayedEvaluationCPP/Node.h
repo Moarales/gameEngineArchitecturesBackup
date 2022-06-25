@@ -22,7 +22,7 @@ public:
 
 
 private:
-   bool _dirty = false;
+   bool _dirty = true;
    int _param = 0;
    Node* _parent = nullptr;
    bool _enabled = true;
