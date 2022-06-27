@@ -23,5 +23,3 @@ bestimmte Variable lesend oder schreibend zugreifen zu können.**
 Deadlocks nachweislich ausschließen.**
 
 Dadurch dass zuerst das Objekt mittels _mutex geblocked werden muss um auch den _refCounter blockieren zu können, kann kein Deadlock auftreten. Thread safety wird sichergestellt durch die beiden mutex Objekte wird sichergestellt dass keine Race Condition die Ausgabe des Ergebnisses verfälscht. Nodes werden gelocked bei Veränderung der Parameter und geben daher keine stale Values zurück
-
-
