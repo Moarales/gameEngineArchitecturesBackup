@@ -3,8 +3,14 @@
 
 #include <iostream>
 
+#include "Allocator.h"
+
 int main()
 {
+    constexpr int memory = 1024;
+
+    char memoryStorage[memory];
+    Allocator myMemory(memory, memoryStorage);
     std::cout << "Hello World!\n";
 }
 
