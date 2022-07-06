@@ -11,6 +11,14 @@ int main()
 
     char memoryStorage[memory];
     Allocator myMemory(memory, memoryStorage);
+
+    size_t neededMemory = 15;
+    void* pMemory = myMemory.alloc(neededMemory);
+
+    myMemory.free(pMemory);
+    pMemory = nullptr;
+
+
     std::cout << "lmao\n";
 }
 

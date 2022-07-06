@@ -2,27 +2,33 @@
 
 #include <cassert>
 #include <stdexcept>
-
-#include "math.h"
+#include <cmath>
 
 Allocator::Allocator(size_t availableMemorySize, void* availableMemory)
 {
-
+    
     //create new free memory block:
-    auto elem = static_cast<Elem*>(availableMemory);
+    auto start = static_cast<size_t*>(availableMemory);
+    *start = 0;
+    auto elem = reinterpret_cast<Elem*>(static_cast<size_t*>(availableMemory)+1);
 
     elem->isFree = true;
-    //size exclusive with overhead
-    elem->size = availableMemorySize - 5;
+    //size exclusive with overhead from elem and allocator
+    elem->size = availableMemorySize - 5 -2;
     elem->next = nullptr;
     elem->prev = nullptr;
+    auto end = reinterpret_cast<size_t*>(static_cast<char*>(availableMemory) + elem->size) - 1;
+    *end = 0;
+
+    //Start and end of allocatable memory is marked with size = 0;
+
 
 
     //move stored memory down 4 bytes: size_t, prev,next, bool
-    elem->storedMemory = static_cast<void*>(static_cast<size_t*>(availableMemory) + 4);
+    elem->storedMemory = static_cast<void*>(static_cast<size_t*>(availableMemory) + 5);
 
 
-    auto pEndOfMemory = reinterpret_cast<size_t*>(static_cast<char*>(availableMemory) + elem->size) - 1;
+    auto pEndOfMemory = reinterpret_cast<size_t*>(static_cast<char*>(availableMemory) + elem->size) - 2;
 
     //write size of block to end
     *pEndOfMemory = elem->size;
@@ -55,6 +61,7 @@ void* Allocator::alloc(size_t size)
         //go to next bigger exp
         if (_freeMemory[index] == nullptr)
         {
+            index++;
             continue;
         }
         currentFreeEl = _freeMemory[index];
@@ -77,12 +84,19 @@ void* Allocator::alloc(size_t size)
         throw std::overflow_error("Couldn't find enought free memory for this object");
     }
 
-    //delete currentElement from Free List
+    ////delete currentElement from Free List
     if (currentFreeEl->prev != nullptr)
     {
         currentFreeEl->prev->next = currentFreeEl->next;
-        currentFreeEl->next->prev = currentFreeEl->prev;
-
+        if(currentFreeEl->next !=nullptr)
+        {
+            currentFreeEl->next->prev = currentFreeEl->prev;
+        }
+    }
+    else if(currentFreeEl->next != nullptr)
+    {
+        _freeMemory[index] = currentFreeEl->next;
+        currentFreeEl->next->prev = nullptr;
     }
     else
     {
@@ -99,7 +113,7 @@ void* Allocator::alloc(size_t size)
     auto pointerToNewFreeMemory = reinterpret_cast<size_t*>(static_cast<char*>(currentFreeEl->storedMemory) + currentFreeEl->size + 1);
     auto memoryPointer = reinterpret_cast<void*>(pointerToNewFreeMemory);
 
-    auto endOfMemory = reinterpret_cast<size_t*>(static_cast<char*>(currentFreeEl->storedMemory) + currentFreeEl->size) - 1;
+    auto endOfMemory = reinterpret_cast<size_t*>(static_cast<char*>(currentFreeEl->storedMemory) + currentFreeEl->size);
 
     //write size of block to end
     *endOfMemory = currentFreeEl->size;
@@ -134,6 +148,14 @@ void Allocator::free(void* Data)
 
     //get prevElement:
     auto prevElemSize = static_cast<size_t*>(Data) - 5;
+
+
+    bool skipMergingPrev = false;
+    //start of memory reached
+    if(*prevElemSize == 0)
+    {
+        skipMergingPrev = true;
+    }
     auto prevElem = reinterpret_cast<Elem*>(static_cast<size_t*>(Data) - *prevElemSize - 4);
 
     //get nextElement:
@@ -142,6 +164,7 @@ void Allocator::free(void* Data)
 
 
     Elem* mergedElem = elemToBeFreed;
+
 
     if (prevElem->isFree)
     {

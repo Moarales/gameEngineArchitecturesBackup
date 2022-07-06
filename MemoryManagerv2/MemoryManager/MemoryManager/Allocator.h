@@ -31,9 +31,6 @@ private:
 	int FindFittingList(Elem* elem);
 	void RemoveElemFromFreeMemoryList(Elem* elem);
 
-	Elem* _first = nullptr;
-	Elem* _last = nullptr;
-
 	Elem* _freeMemory[64] = {};
 
 	//void* _memory;
