@@ -11,7 +11,7 @@ int main()
 
     char memoryStorage[memory];
     Allocator myMemory(memory, memoryStorage);
-    std::cout << "Hello World!\n";
+    std::cout << "lmao\n";
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

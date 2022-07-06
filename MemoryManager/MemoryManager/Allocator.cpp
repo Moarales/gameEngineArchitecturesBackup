@@ -9,23 +9,36 @@ Allocator::Allocator(size_t availableMemorySize, void* availableMemory)
 {
 
     //create new free memory block:
-    Elem* elem = new Elem();
+    auto elem = static_cast<Elem*>(availableMemory);
+
     elem->isFree = true;
     //size exclusive with overhead
-    elem->size = availableMemorySize;
+    elem->size = availableMemorySize - 5;
+    elem->next = nullptr;
+    elem->prev = nullptr;
 
 
-    auto listValue = log2(availableMemorySize + sizeof(Elem*));
+    //move stored memory down 4 bytes: size_t, prev,next, bool
+    elem->storedMemory = static_cast<void*>(static_cast<size_t*>(availableMemory)+4);
+
+
+    auto pEndOfMemory = reinterpret_cast<size_t*>(static_cast<char*>(availableMemory) +elem->size) - 1;
+
+    //write size of block to end
+    *pEndOfMemory = elem->size;
+
+
+    auto listValue = log2(availableMemorySize);
     int exp = ceil(listValue);
 
     //store free memory inside lists
     _freeMemory[exp] = elem;
-
 }
 
 void* Allocator::alloc(size_t size)
 {
-    size_t neededsize = size + sizeof(size_t) + sizeof(Elem*);
+    //size_t neededsize = size + sizeof(size_t) + sizeof(Elem*);
+    size_t neededsize = size + 5;
 
 
     //find memory block that can fit this size:
@@ -79,76 +92,124 @@ void* Allocator::alloc(size_t size)
     currentFreeEl->size -= neededsize;
 
 
+    //auto pEndOfMemory = reinterpret_cast<size_t*>(static_cast<char*>(elem->storedMemory) + elem->size) - 1;
+
+    //pointer to end of the new block + the new size + 1
+    auto pointerToNewFreeMemory = reinterpret_cast<size_t*>(static_cast<char*>(currentFreeEl->storedMemory) + currentFreeEl->size + 1);
+    auto memoryPointer = reinterpret_cast<void*>(pointerToNewFreeMemory);
+
+    auto endOfMemory = reinterpret_cast<size_t*>(static_cast<char*>(currentFreeEl->storedMemory) + currentFreeEl->size) - 1;
+
+    //write size of block to end
+    *endOfMemory = currentFreeEl->size;
+
     //add new free memory to list
+    //sort the new free element 
     AddFreeMemoryElem(currentFreeEl);
 
-    assert(currentFreeEl->next == nullptr);
 
-    //CREATE now allocated memory
-
-
+    //create new Elem
+    auto newAllocatedElem = static_cast<Elem*>(memoryPointer);
 
 
+    newAllocatedElem->size = size;
+    newAllocatedElem->prev = nullptr;
+    newAllocatedElem->next = nullptr;
+    newAllocatedElem->isFree = false;
+    newAllocatedElem->storedMemory = static_cast<void*>(static_cast<size_t*>(memoryPointer) + 4);
 
+    auto pEndOfMemory = reinterpret_cast<size_t*>(static_cast<char*>(newAllocatedElem->storedMemory) + newAllocatedElem->size) - 1;
 
+    //write size of block to end
+    *pEndOfMemory = newAllocatedElem->size;
 
-
-
-    //PSEUDO CODE:
-    size_t neededsize = size + sizeof(size_t);
-
-    Elem* elem = _first;
-    while (elem && elem->size < needed size)
-        elem = elem->next;
-    if (!elem)
-    {
-        return 0;
-    }
-    if (elem->size <= neededsize + sizeof(Elem))
-    {
-        if (elem->prev)
-            elem->prev->next = elem->next;
-        else
-            _first = elem->next;
-        if (elem->next->prev)
-            elem->next->prev = elem->prev;
-        else
-            _last = elem_prev;
-        return (size_t*)elem + 1;
-    }
-    else
-    {
-        Elem* newElem = (Elem*)((char*)elem + neededsize);
-        newElem->prev = elem->prev;
-        newElem->next = elem->next;
-        newElem->size = elem->size - neededsize;
-        if (elem->prev)
-            elem->prev->next = newElem;
-        else
-            _first = newElem;
-        if (elem->next)
-            elem->next->prev = newElem;
-        else
-            _last = newElem;
-        *((size_t*)elem) = neededsize;
-        return (size_t*)elem + 1;
-    }
+    return newAllocatedElem->storedMemory;
 }
 
 void Allocator::free(void* Data)
 {
-    //PSEUDO CODE:
-    // Missing: Merging!!!
-    //Elem* elem = (Elem*)((size_t*)p - 1);
-    //elem->prev = last;
-    //elem->next = 0;
-    //memset(elem + 1, 0, elem->size - sizeof(Elem));
-    //if (last)
-    //    last->next = elem;
-    //else
-    //    first = elem;
-    //last = elem;
+
+    auto elemToBeFreed = reinterpret_cast<Elem*>(static_cast<size_t*>(Data) - 4);
+
+    //get prevElement:
+    auto prevElemSize = static_cast<size_t*>(Data) - 5;
+    auto prevElem = reinterpret_cast<Elem*>(static_cast<size_t*>(Data) - *prevElemSize - 4);
+
+    //get nextElement:
+    //auto nextElemSize = reinterpret_cast<size_t*>(static_cast<char*>(elemToBeFreed->storedMemory)+elemToBeFreed->size + 1);
+    auto nextElem = reinterpret_cast<Elem*>(static_cast<size_t*>(Data) + elemToBeFreed->size + 1);
+
+
+    Elem* mergedElem = elemToBeFreed;
+
+    if(prevElem->isFree)
+    {
+        mergedElem = MergeMemory(prevElem, elemToBeFreed);
+    }
+
+    if(nextElem->isFree)
+    {
+        mergedElem = MergeMemory(mergedElem, nextElem);
+    }
+
+
+    AddFreeMemoryElem(mergedElem);
 }
+
+Elem* Allocator::MergeMemory(Elem* prevElement, Elem* followingElement)
+{
+    if(!prevElement->isFree || !followingElement->isFree)
+    {
+        throw std::invalid_argument("One storage need to be free");
+    }
+
+
+    //remove element from free memory list
+    if(prevElement->isFree)
+    {
+        RemoveElemFromFreeMemoryList(prevElement);
+    }else if(followingElement->isFree)
+    {
+        RemoveElemFromFreeMemoryList(followingElement);
+    }
+
+    auto newSize = prevElement->size + followingElement->size - 5;
+
+    prevElement->size = newSize;
+    auto pEndOfMemory = reinterpret_cast<size_t*>(static_cast<char*>(prevElement->storedMemory) + prevElement->size) - 1;
+    //write size of block to end
+    *pEndOfMemory = prevElement->size;
+
+    return prevElement;
+}
+
+int Allocator::FindFittingList(Elem* elem)
+{
+    return ceil(log2(elem->size+5));
+
+}
+
+void Allocator::RemoveElemFromFreeMemoryList(Elem* elem)
+{
+        //if first in free list 
+        if (elem->prev == nullptr)
+        {
+            auto index = FindFittingList(elem);
+            _freeMemory[index] = elem->next;
+            elem->next->prev = nullptr;
+        }
+        else //if element is in the middle
+        {
+            elem->prev->next = elem->next;
+            if(elem->next != nullptr)
+            {
+                elem->next->prev = elem->prev;
+            }
+        }
+        elem->next = nullptr;
+        elem->prev = nullptr;
+}
+
 
 void Allocator::AddFreeMemoryElem(Elem* elem)
 {
@@ -157,7 +218,8 @@ void Allocator::AddFreeMemoryElem(Elem* elem)
     elem->next = nullptr;
     elem->prev = nullptr;
 
-    int listIndex = ceil(log2(elem->size + sizeof(Elem*)));
+
+    int listIndex = ceil(log2(elem->size));
 
     auto currentElement = _freeMemory[listIndex];
 
