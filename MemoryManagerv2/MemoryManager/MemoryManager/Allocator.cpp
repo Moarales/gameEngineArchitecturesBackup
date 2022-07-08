@@ -14,10 +14,11 @@ Allocator::Allocator(size_t availableMemorySize, void* availableMemory)
 
     elem->isFree = true;
     //size exclusive with overhead from elem and allocator
-    elem->size = availableMemorySize - 5 -2;
+    elem->size = availableMemorySize - 2  - 5;
     elem->next = nullptr;
     elem->prev = nullptr;
-    auto end = reinterpret_cast<size_t*>(static_cast<char*>(availableMemory) + elem->size) - 1;
+
+    auto end = reinterpret_cast<size_t*>(static_cast<char*>(availableMemory) + availableMemorySize)  -1;
     *end = 0;
 
     //Start and end of allocatable memory is marked with size = 0;
@@ -25,10 +26,10 @@ Allocator::Allocator(size_t availableMemorySize, void* availableMemory)
 
 
     //move stored memory down 4 bytes: size_t, prev,next, bool
-    elem->storedMemory = static_cast<void*>(static_cast<size_t*>(availableMemory) + 5);
+    elem->storedMemory = static_cast<void*>(reinterpret_cast<size_t *>(static_cast<char*>(availableMemory) +4) + 1 );
 
 
-    auto pEndOfMemory = reinterpret_cast<size_t*>(static_cast<char*>(availableMemory) + elem->size) - 2;
+    auto pEndOfMemory = reinterpret_cast<size_t*>(static_cast<char*>(availableMemory) + availableMemorySize) - 2;
 
     //write size of block to end
     *pEndOfMemory = elem->size;
@@ -44,7 +45,12 @@ Allocator::Allocator(size_t availableMemorySize, void* availableMemory)
 void* Allocator::alloc(size_t size)
 {
     //size_t neededsize = size + sizeof(size_t) + sizeof(Elem*);
-    size_t neededsize = size + 5;
+
+    // TODO I need 4 more bytes to my size
+    //size_t xd = reinterpret_cast<void*>(size);
+    //size_t neededsize = size + sizeof(Elem);
+
+    size_t neededsize = size + sizeof(Elem) + 1;
 
 
     //find memory block that can fit this size:
@@ -110,10 +116,10 @@ void* Allocator::alloc(size_t size)
     //auto pEndOfMemory = reinterpret_cast<size_t*>(static_cast<char*>(elem->storedMemory) + elem->size) - 1;
 
     //pointer to end of the new block + the new size + 1
-    auto pointerToNewFreeMemory = reinterpret_cast<size_t*>(static_cast<char*>(currentFreeEl->storedMemory) + currentFreeEl->size + 1);
+    auto pointerToNewFreeMemory = reinterpret_cast<size_t*>(static_cast<char*>(currentFreeEl->storedMemory) + currentFreeEl->size);
     auto memoryPointer = reinterpret_cast<void*>(pointerToNewFreeMemory);
 
-    auto endOfMemory = reinterpret_cast<size_t*>(static_cast<char*>(currentFreeEl->storedMemory) + currentFreeEl->size);
+    auto endOfMemory = reinterpret_cast<size_t*>(static_cast<char*>(currentFreeEl->storedMemory) + currentFreeEl->size) -1 ;
 
     //write size of block to end
     *endOfMemory = currentFreeEl->size;
@@ -131,9 +137,10 @@ void* Allocator::alloc(size_t size)
     newAllocatedElem->prev = nullptr;
     newAllocatedElem->next = nullptr;
     newAllocatedElem->isFree = false;
-    newAllocatedElem->storedMemory = static_cast<void*>(static_cast<size_t*>(memoryPointer) + 4);
+    newAllocatedElem->storedMemory =static_cast<char*>(memoryPointer) + 4;
 
-    auto pEndOfMemory = reinterpret_cast<size_t*>(static_cast<char*>(newAllocatedElem->storedMemory) + newAllocatedElem->size) - 1;
+
+    auto pEndOfMemory = reinterpret_cast<size_t*>(static_cast<char*>(memoryPointer) + newAllocatedElem->size) -1 + sizeof(Elem) ;
 
     //write size of block to end
     *pEndOfMemory = newAllocatedElem->size;
@@ -143,35 +150,42 @@ void* Allocator::alloc(size_t size)
 
 void Allocator::free(void* Data)
 {
-
-    auto elemToBeFreed = reinterpret_cast<Elem*>(static_cast<size_t*>(Data) - 4);
+    auto elemToBeFreed = reinterpret_cast<Elem*>(static_cast<char*>(Data) - 4);
 
     //get prevElement:
-    auto prevElemSize = static_cast<size_t*>(Data) - 5;
+    auto prevElemSize = reinterpret_cast<size_t*>(static_cast<char*>(Data) - 4) - 1;
 
 
-    bool skipMergingPrev = false;
+    Elem* prevElem = nullptr;
     //start of memory reached
-    if(*prevElemSize == 0)
+    if(*prevElemSize != 0)
     {
-        skipMergingPrev = true;
+        prevElem = reinterpret_cast<Elem*>(static_cast<char*>(Data) - 8 - *prevElemSize);
     }
-    auto prevElem = reinterpret_cast<Elem*>(static_cast<size_t*>(Data) - *prevElemSize - 4);
 
     //get nextElement:
     //auto nextElemSize = reinterpret_cast<size_t*>(static_cast<char*>(elemToBeFreed->storedMemory)+elemToBeFreed->size + 1);
-    auto nextElem = reinterpret_cast<Elem*>(static_cast<size_t*>(Data) + elemToBeFreed->size + 1);
+
+
+    auto nextElemSize = reinterpret_cast<size_t*>(static_cast<char*>(Data) + elemToBeFreed->size);
+
+	Elem* nextElem = nullptr;
+
+    if(*nextElemSize != 0)
+    {
+        nextElem = reinterpret_cast<Elem*>(reinterpret_cast<size_t*>(static_cast<char*>(Data) + elemToBeFreed->size) + 1);
+    }
+
 
 
     Elem* mergedElem = elemToBeFreed;
 
-
-    if (prevElem->isFree)
+    if (prevElem && prevElem->isFree)
     {
-        mergedElem = MergeMemory(prevElem, elemToBeFreed);
+        mergedElem = MergeMemory(prevElem, mergedElem);
     }
 
-    if (nextElem->isFree)
+    if (nextElem && nextElem->isFree)
     {
         mergedElem = MergeMemory(mergedElem, nextElem);
     }
@@ -182,7 +196,7 @@ void Allocator::free(void* Data)
 
 Elem* Allocator::MergeMemory(Elem* prevElement, Elem* followingElement)
 {
-    if (!prevElement->isFree || !followingElement->isFree)
+    if (!prevElement->isFree && !followingElement->isFree)
     {
         throw std::invalid_argument("One storage need to be free");
     }
@@ -198,7 +212,7 @@ Elem* Allocator::MergeMemory(Elem* prevElement, Elem* followingElement)
         RemoveElemFromFreeMemoryList(followingElement);
     }
 
-    auto newSize = prevElement->size + followingElement->size - 5;
+    auto newSize = prevElement->size + followingElement->size +4;
 
     prevElement->size = newSize;
     auto pEndOfMemory = reinterpret_cast<size_t*>(static_cast<char*>(prevElement->storedMemory) + prevElement->size) - 1;
@@ -220,8 +234,14 @@ void Allocator::RemoveElemFromFreeMemoryList(Elem* elem)
     if (elem->prev == nullptr)
     {
         auto index = FindFittingList(elem);
-        _freeMemory[index] = elem->next;
-        elem->next->prev = nullptr;
+        if(elem->next)
+        {
+            _freeMemory[index] = elem->next;
+            elem->next->prev = nullptr;
+        }else
+        {
+            _freeMemory[index] = nullptr;
+        }
     }
     else //if element is in the middle
     {

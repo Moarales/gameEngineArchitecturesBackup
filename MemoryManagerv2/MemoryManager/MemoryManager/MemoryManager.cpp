@@ -7,12 +7,12 @@
 
 int main()
 {
-    constexpr int memory = 1024;
+    const size_t memory = 100;
 
     char memoryStorage[memory];
-    Allocator myMemory(memory, memoryStorage);
+    Allocator myMemory(100, memoryStorage);
 
-    size_t neededMemory = 15;
+    size_t neededMemory = 2;
     void* pMemory = myMemory.alloc(neededMemory);
 
     myMemory.free(pMemory);
