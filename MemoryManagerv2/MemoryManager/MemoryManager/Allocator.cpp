@@ -117,7 +117,7 @@ void Allocator::free(void* Data)
     //end of memoryReached not reached
     if(*nextElemSize != 0)
     {
-        nextElem = reinterpret_cast<Elem*>(reinterpret_cast<size_t*>(static_cast<char*>(Data) + elemToBeFreed->size) + 1);
+        nextElem = reinterpret_cast<Elem*>(reinterpret_cast<size_t*>(static_cast<char*>(Data) + elemToBeFreed->size));
     }
 
 
@@ -152,7 +152,7 @@ Elem* Allocator::MergeElems(Elem* prevElement, Elem* followingElement)
     {
         RemoveElemFromFreeMemoryList(prevElement);
     }
-    else if (followingElement->isFree)
+	if (followingElement->isFree)
     {
         RemoveElemFromFreeMemoryList(followingElement);
     }
