@@ -26,10 +26,11 @@ public:
 
 private:
 
-	Elem* MergeMemory(Elem* prevElement, Elem* followingElement);
+	Elem* MergeElems(Elem* prevElement, Elem* followingElement);
 	void AddFreeMemoryElem(Elem* elem);
-	int FindFittingList(Elem* elem);
+	int FindFittingList(const Elem* elem);
 	void RemoveElemFromFreeMemoryList(Elem* elem);
+	Elem* FindFreeElemInList(size_t neededSize);
 
 	Elem* _freeMemory[64] = {};
 
